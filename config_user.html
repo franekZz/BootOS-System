@@ -2,56 +2,31 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Tworzenie Konta</title>
+    <title>BootOS - Krok 2</title>
     <style>
-        body {
-            margin: 0; height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            font-family: 'Segoe UI', sans-serif; background-color: #0000CD; color: white;
-        }
-        .form-card {
-            background: rgba(255,255,255,0.1);
-            padding: 40px; border-radius: 20px; backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; gap: 15px; width: 320px;
-        }
-        h1 { margin-bottom: 20px; }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; background-color: #0000CD; color: white; }
+        .form-card { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 15px; width: 300px; }
         input { padding: 15px; border-radius: 10px; border: none; font-size: 16px; outline: none; }
-        button {
-            padding: 15px; border-radius: 10px; border: none; background: white;
-            color: #0000CD; font-weight: bold; cursor: pointer; font-size: 16px;
-            margin-top: 10px;
-        }
-        button:hover { background: #f0f0f0; }
-        p { font-size: 12px; opacity: 0.8; margin-top: 10px; }
+        button { padding: 15px; border-radius: 10px; border: none; background: white; color: #0000CD; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <h1>KROK 2: Dane użytkownika</h1>
-    
+    <h1>KROK 2: Twój Profil</h1>
     <div class="form-card">
-        <input type="text" id="nick" placeholder="Nazwa (możesz zostawić puste)..." autocomplete="off">
-        <input type="password" id="pass" placeholder="Hasło (możesz zostawić puste)..." autocomplete="off">
-        
-        <button onclick="finishSetup()">ZAKOŃCZ I WEJDŹ</button>
-        <p style="text-align: center;">Kliknij przycisk, aby przejść do pulpitu.</p>
+        <input type="text" id="nick" placeholder="Nazwa (opcjonalnie)">
+        <input type="password" id="pass" placeholder="Hasło (opcjonalnie)">
+        <button onclick="saveAndLoad()">ZAPISZ I DALEJ</button>
     </div>
 
     <script>
-        function finishSetup() {
-            const nameInput = document.getElementById('nick').value;
-            const passInput = document.getElementById('pass').value;
-
-            // Zapisujemy to co jest (nawet jeśli to puste pole "")
-            // Jeśli użytkownik nic nie wpisał, ustawimy domyślną nazwę "User"
-            const finalName = nameInput.trim() === "" ? "Użytkownik" : nameInput;
-
-            localStorage.setItem('bootos_user', finalName);
-            localStorage.setItem('bootos_pass', passInput);
+        function saveAndLoad() {
+            const name = document.getElementById('nick').value;
+            localStorage.setItem('bootos_user', name || "Użytkownik");
+            localStorage.setItem('bootos_pass', document.getElementById('pass').value);
             localStorage.setItem('bootos_configured', 'true');
 
-            // Idziemy dalej bez żadnych pytań
-            window.location.href = "desktop.html";
+            // KLUCZOWY MOMENT: Kierujemy do loading.html
+            window.location.href = "loading.html";
         }
     </script>
 </body>
