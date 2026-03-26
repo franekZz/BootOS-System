@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Krok 2</title>
+    <title>BootOS - Nazwa i Hasło</title>
     <style>
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column;
@@ -11,40 +11,22 @@
         }
         .form-card {
             background: rgba(255,255,255,0.1);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 300px;
+            padding: 40px; border-radius: 20px; backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; gap: 15px; width: 300px;
         }
-        input {
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            outline: none;
-            font-size: 16px;
-        }
+        input { padding: 15px; border-radius: 10px; border: none; font-size: 16px; }
         button {
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            background: white;
-            color: #0000CD;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
+            padding: 15px; border-radius: 10px; border: none; background: white;
+            color: #0000CD; font-weight: bold; cursor: pointer;
         }
-        button:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
-    <h1>KROK 2: Twój Profil</h1>
+    <h1>KROK 2: Dane użytkownika</h1>
     <div class="form-card">
-        <input type="text" id="nick" placeholder="Podaj nazwę (Nick)...">
-        <input type="password" id="pass" placeholder="Podaj hasło...">
-        <button onclick="finish()">ZAPISZ I URUCHOM</button>
+        <input type="text" id="nick" placeholder="Twoja nazwa...">
+        <input type="password" id="pass" placeholder="Twoje hasło...">
+        <button onclick="finish()">UTWÓRZ KONTO</button>
     </div>
 
     <script>
@@ -52,13 +34,15 @@
             const n = document.getElementById('nick').value;
             const p = document.getElementById('pass').value;
 
-            if(n && p) {
+            if(n !== "" && p !== "") {
                 localStorage.setItem('bootos_user', n);
                 localStorage.setItem('bootos_pass', p);
                 localStorage.setItem('bootos_configured', 'true');
-                window.location.href = "desktop.html"; // Teraz na pulpit
+                
+                // Przechodzimy do pulpitu (upewnij się, że masz plik desktop.html)
+                window.location.href = "desktop.html";
             } else {
-                alert("Wypełnij oba pola!");
+                alert("Wpisz nazwę i hasło!");
             }
         }
     </script>
