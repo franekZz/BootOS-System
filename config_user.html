@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Nazwa i Hasło</title>
+    <title>BootOS - Tworzenie Konta</title>
     <style>
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column;
@@ -12,38 +12,46 @@
         .form-card {
             background: rgba(255,255,255,0.1);
             padding: 40px; border-radius: 20px; backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; gap: 15px; width: 300px;
+            display: flex; flex-direction: column; gap: 15px; width: 320px;
         }
-        input { padding: 15px; border-radius: 10px; border: none; font-size: 16px; }
+        h1 { margin-bottom: 20px; }
+        input { padding: 15px; border-radius: 10px; border: none; font-size: 16px; outline: none; }
         button {
             padding: 15px; border-radius: 10px; border: none; background: white;
-            color: #0000CD; font-weight: bold; cursor: pointer;
+            color: #0000CD; font-weight: bold; cursor: pointer; font-size: 16px;
+            margin-top: 10px;
         }
+        button:hover { background: #f0f0f0; }
+        p { font-size: 12px; opacity: 0.8; margin-top: 10px; }
     </style>
 </head>
 <body>
+
     <h1>KROK 2: Dane użytkownika</h1>
+    
     <div class="form-card">
-        <input type="text" id="nick" placeholder="Twoja nazwa...">
-        <input type="password" id="pass" placeholder="Twoje hasło...">
-        <button onclick="finish()">UTWÓRZ KONTO</button>
+        <input type="text" id="nick" placeholder="Nazwa (możesz zostawić puste)..." autocomplete="off">
+        <input type="password" id="pass" placeholder="Hasło (możesz zostawić puste)..." autocomplete="off">
+        
+        <button onclick="finishSetup()">ZAKOŃCZ I WEJDŹ</button>
+        <p style="text-align: center;">Kliknij przycisk, aby przejść do pulpitu.</p>
     </div>
 
     <script>
-        function finish() {
-            const n = document.getElementById('nick').value;
-            const p = document.getElementById('pass').value;
+        function finishSetup() {
+            const nameInput = document.getElementById('nick').value;
+            const passInput = document.getElementById('pass').value;
 
-            if(n !== "" && p !== "") {
-                localStorage.setItem('bootos_user', n);
-                localStorage.setItem('bootos_pass', p);
-                localStorage.setItem('bootos_configured', 'true');
-                
-                // Przechodzimy do pulpitu (upewnij się, że masz plik desktop.html)
-                window.location.href = "desktop.html";
-            } else {
-                alert("Wpisz nazwę i hasło!");
-            }
+            // Zapisujemy to co jest (nawet jeśli to puste pole "")
+            // Jeśli użytkownik nic nie wpisał, ustawimy domyślną nazwę "User"
+            const finalName = nameInput.trim() === "" ? "Użytkownik" : nameInput;
+
+            localStorage.setItem('bootos_user', finalName);
+            localStorage.setItem('bootos_pass', passInput);
+            localStorage.setItem('bootos_configured', 'true');
+
+            // Idziemy dalej bez żadnych pytań
+            window.location.href = "desktop.html";
         }
     </script>
 </body>
