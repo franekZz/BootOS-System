@@ -4,161 +4,105 @@
     <meta charset="UTF-8">
     <title>BootOS - Pulpit</title>
     <style>
-        /* BAZOWE STYLE PULPITU */
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; font-family: 'Segoe UI', sans-serif;
-            /* CZARNO-NIEBIESKA TAPETA (CSS Gradient) */
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
             background: radial-gradient(circle at center, #000080 0%, #000000 100%);
             color: white;
-            transition: 0.5s;
         }
 
-        /* KLASA DLA MOTYWU JASNEGO (Jeśli wybrano w configu) */
-        body.light-mode {
-            background: radial-gradient(circle at center, #e0e0e0 0%, #ffffff 100%);
-            color: black;
-        }
-
-        /* DUŻY NAPIS BOOTOS NA ŚRODKU TAPETY */
+        /* LOGO NA ŚRODKU */
         #wallpaper-logo {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
-            font-weight: bold;
-            letter-spacing: 10px;
-            opacity: 0.15; /* Delikatny, przezroczysty napis */
-            user-select: none;
-            text-shadow: 0 0 20px rgba(0,0,255,0.5);
+            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 120px; font-weight: bold; opacity: 0.1; user-select: none;
         }
-        body.light-mode #wallpaper-logo { opacity: 0.05; text-shadow: none; }
 
         /* PASEK ZADAŃ */
         #taskbar {
-            position: absolute; bottom: 0; width: 100%; height: 48px;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            display: flex; align-items: center; padding: 0 10px;
-            box-sizing: border-box; z-index: 100;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            position: absolute; bottom: 0; width: 100%; height: 45px;
+            background: rgba(0,0,0,0.9); display: flex; align-items: center; padding: 0 10px; z-index: 1000;
         }
-        body.light-mode #taskbar { background: rgba(240,240,240,0.85); color: black; border-top: 1px solid #ccc; }
 
-        #start-btn { font-weight: bold; margin-right: 15px; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
-        #start-btn:hover { background: rgba(255,255,255,0.1); }
-
-        /* IKONA CMD NA PASKU */
         .taskbar-icon {
-            width: 32px; height: 32px;
-            background-color: #222; /* Czarna ikona */
-            border: 1px solid #444; color: #55ff55; /* Zielony prompt */
-            font-family: 'Consolas', monospace; font-size: 14px;
-            display: flex; justify-content: center; align-items: center;
-            border-radius: 4px; cursor: pointer; transition: 0.2s;
-            margin-right: 10px;
-        }
-        .taskbar-icon:hover { transform: translateY(-3px); background-color: #333; }
-
-        #clock { margin-left: auto; font-size: 14px; font-weight: bold; }
-
-        /* OKNO CMD (UKRYTE NA START) */
-        #cmd-window {
-            display: none; /* Ukryte */
-            position: absolute; top: 100px; left: 100px;
-            width: 600px; height: 400px;
-            background-color: black; color: #55ff55; /* Zielony tekst */
-            font-family: 'Consolas', monospace; font-size: 16px;
-            border: 2px solid #555; border-radius: 8px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            z-index: 50; overflow: hidden;
+            width: 35px; height: 35px; background: #222; border: 1px solid #444;
+            color: #55ff55; display: flex; justify-content: center; align-items: center;
+            border-radius: 5px; cursor: pointer; margin-right: 10px; font-family: monospace;
         }
 
-        /* BELKA TYTUŁOWA OKNA */
-        #cmd-header {
-            height: 30px; background-color: #333;
-            display: flex; align-items: center; padding: 0 10px;
-            cursor: move; color: white; font-family: sans-serif; font-size: 12px;
+        /* OKNO SYSTEMOWE (Dla CMD) */
+        #window-wrapper {
+            display: none; position: absolute; top: 50px; left: 50px;
+            width: 700px; height: 450px; background: #333;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 100; flex-direction: column;
         }
-        #cmd-close { margin-left: auto; cursor: pointer; color: #ff5555; font-weight: bold; }
 
-        /* ZAWARTOŚĆ TERMINALA */
-        #cmd-content { padding: 15px; height: calc(100% - 30px); overflow-y: auto; }
+        #window-header {
+            height: 35px; background: #222; display: flex; align-items: center;
+            padding: 0 15px; cursor: move; user-select: none;
+        }
+
+        #window-close { margin-left: auto; color: #ff5555; cursor: pointer; font-weight: bold; }
+
+        /* RAMKA WCZYTUJĄCA CMD.HTML */
+        #window-frame { width: 100%; height: 100%; border: none; background: black; }
+
+        #clock { margin-left: auto; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="wallpaper-logo">BootOS</div>
 
-    <h1 id="welcome-msg" style="text-align:center; margin-top:20vh; color:white; text-shadow: 2px 2px 10px #000; position:relative; z-index:10;"></h1>
-
-    <div id="cmd-window">
-        <div id="cmd-header">
-            <span>BootOS Command Prompt (cmd.exe)</span>
-            <span id="cmd-close" onclick="toggleCMD()">X</span>
+    <div id="window-wrapper">
+        <div id="window-header">
+            <span>Wiersz polecenia (CMD)</span>
+            <span id="window-close" onclick="toggleCMD()">X</span>
         </div>
-        <div id="cmd-content">
-            <p>BootOS [Version 1.0.1]</p>
-            <p>(c) BayOSPAL Corporation. Wszystkie prawa zastrzeżone.</p>
-            <br>
-            <p>C:\Users\<span id="cmd-user">Użytkownik</span>> <span style="animation: blink 1s infinite;">_</span></p>
-        </div>
+        <iframe src="CMD.html" id="window-frame"></iframe>
     </div>
 
     <div id="taskbar">
-        <div id="start-btn">START</div>
-        
-        <div class="taskbar-icon" title="Wiersz polecenia" onclick="toggleCMD()">
-            >_
-        </div>
-
-        <div id="clock"></div>
+        <div style="margin-right:20px;"><b>START</b></div>
+        <div class="taskbar-icon" onclick="toggleCMD()">>_</div>
+        <div id="clock">00:00</div>
     </div>
 
     <script>
-        window.onload = function() {
-            // 1. ŁADOWANIE DANYCH
-            const user = localStorage.getItem('bootos_user') || "Użytkownik";
-            const theme = localStorage.getItem('bootos_theme');
+        // ZEGAR I DANE
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('clock').innerText = d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0');
+        }, 1000);
 
-            // 2. STOSOWANIE USTAWIEŃ
-            if(theme === 'light') document.body.classList.add('light-mode');
-            document.getElementById('welcome-msg').innerText = "Witaj, " + user + "!";
-            document.getElementById('cmd-user').innerText = user;
-
-            // 3. ZEGAR
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            }, 1000);
-        };
-
-        // FUNKCJA OTWIERANIA/ZAMYKANIA CMD
         function toggleCMD() {
-            const cmd = document.getElementById('cmd-window');
-            if(cmd.style.display === 'block') {
-                cmd.style.display = 'none';
-            } else {
-                cmd.style.display = 'block';
-            }
+            const win = document.getElementById('window-wrapper');
+            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        // --- PROSTY SKRYPT DO PRZESUWANIA OKNA ---
-        const cmdHeader = document.getElementById('cmd-header');
-        const cmdWindow = document.getElementById('cmd-window');
-        let isDragging = false, offset = [0,0];
+        // PRZESUWANIE OKNA
+        const wrapper = document.getElementById('window-wrapper');
+        const header = document.getElementById('window-header');
+        let active = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
 
-        cmdHeader.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            offset = [cmdWindow.offsetLeft - e.clientX, cmdWindow.offsetTop - e.clientY];
+        header.addEventListener("mousedown", (e) => {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            active = true;
         });
-        document.addEventListener('mouseup', () => isDragging = false);
-        document.addEventListener('mousemove', (e) => {
-            if(isDragging) {
-                cmdWindow.style.left = (e.clientX + offset[0]) + 'px';
-                cmdWindow.style.top = (e.clientY + offset[1]) + 'px';
+
+        document.addEventListener("mousemove", (e) => {
+            if (active) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+                wrapper.style.transform = "translate(" + currentX + "px, " + currentY + "px)";
             }
         });
+
+        document.addEventListener("mouseup", () => active = false);
     </script>
 </body>
 </html>
