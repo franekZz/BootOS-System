@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BootOS - Przygotowywanie</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: black; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        #status-text { font-size: 24px; z-index: 10; text-align: center; transition: opacity 0.5s; }
+        .bubble { position: absolute; bottom: -100px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; animation: rise var(--speed) infinite ease-in; z-index: 1; }
+        @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0; } 50% { opacity: 0.3; } 100% { transform: translateY(-120vh) scale(1.5); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="status-text">Inicjalizacja...</div>
+    <div id="bg-bubbles"></div>
+    <script>
+        const txt = document.getElementById('status-text');
+        const steps = [
+            { t: "Wszystko przygotujemy sami", d: 4000 },
+            { t: "Wszystko Spersonalizujemy dla ciebie", d: 3000 },
+            { t: "Pobieramy aktulizacje", d: 2000 }
+        ];
+        let current = 0;
+        function showStep() {
+            if (current < steps.length) {
+                txt.style.opacity = 0;
+                setTimeout(() => {
+                    txt.innerText = steps[current].t;
+                    txt.style.opacity = 1;
+                    setTimeout(() => { current++; showStep(); }, steps[current].d);
+                }, 500);
+            } else { window.location.href = "desktop.html"; }
+        }
+        showStep();
+        setInterval(() => {
+            const b = document.createElement('div');
+            const s = Math.random() * 50 + 10 + "px";
+            b.className = 'bubble'; b.style.width = s; b.style.height = s;
+            b.style.left = Math.random() * 100 + "vw";
+            b.style.setProperty('--speed', Math.random() * 5 + 3 + "s");
+            document.getElementById('bg-bubbles').appendChild(b);
+            setTimeout(() => b.remove(), 8000);
+        }, 300);
+    </script>
+</body>
+</html>
