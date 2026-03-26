@@ -4,23 +4,161 @@
     <meta charset="UTF-8">
     <title>BootOS - Pulpit</title>
     <style>
-        body { margin: 0; height: 100vh; background: url('BootOS.png') center/cover; font-family: 'Segoe UI', sans-serif; transition: 0.5s; }
-        body.light-mode { background-color: #fff; background-blend-mode: overlay; }
-        #taskbar { position: absolute; bottom: 0; width: 100%; height: 45px; background: rgba(0,0,0,0.8); color: white; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; }
-        body.light-mode #taskbar { background: rgba(255,255,255,0.8); color: black; }
+        /* BAZOWE STYLE PULPITU */
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Segoe UI', sans-serif;
+            /* CZARNO-NIEBIESKA TAPETA (CSS Gradient) */
+            background: radial-gradient(circle at center, #000080 0%, #000000 100%);
+            color: white;
+            transition: 0.5s;
+        }
+
+        /* KLASA DLA MOTYWU JASNEGO (Jeśli wybrano w configu) */
+        body.light-mode {
+            background: radial-gradient(circle at center, #e0e0e0 0%, #ffffff 100%);
+            color: black;
+        }
+
+        /* DUŻY NAPIS BOOTOS NA ŚRODKU TAPETY */
+        #wallpaper-logo {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            opacity: 0.15; /* Delikatny, przezroczysty napis */
+            user-select: none;
+            text-shadow: 0 0 20px rgba(0,0,255,0.5);
+        }
+        body.light-mode #wallpaper-logo { opacity: 0.05; text-shadow: none; }
+
+        /* PASEK ZADAŃ */
+        #taskbar {
+            position: absolute; bottom: 0; width: 100%; height: 48px;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; align-items: center; padding: 0 10px;
+            box-sizing: border-box; z-index: 100;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        body.light-mode #taskbar { background: rgba(240,240,240,0.85); color: black; border-top: 1px solid #ccc; }
+
+        #start-btn { font-weight: bold; margin-right: 15px; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+        #start-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* IKONA CMD NA PASKU */
+        .taskbar-icon {
+            width: 32px; height: 32px;
+            background-color: #222; /* Czarna ikona */
+            border: 1px solid #444; color: #55ff55; /* Zielony prompt */
+            font-family: 'Consolas', monospace; font-size: 14px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 4px; cursor: pointer; transition: 0.2s;
+            margin-right: 10px;
+        }
+        .taskbar-icon:hover { transform: translateY(-3px); background-color: #333; }
+
+        #clock { margin-left: auto; font-size: 14px; font-weight: bold; }
+
+        /* OKNO CMD (UKRYTE NA START) */
+        #cmd-window {
+            display: none; /* Ukryte */
+            position: absolute; top: 100px; left: 100px;
+            width: 600px; height: 400px;
+            background-color: black; color: #55ff55; /* Zielony tekst */
+            font-family: 'Consolas', monospace; font-size: 16px;
+            border: 2px solid #555; border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 50; overflow: hidden;
+        }
+
+        /* BELKA TYTUŁOWA OKNA */
+        #cmd-header {
+            height: 30px; background-color: #333;
+            display: flex; align-items: center; padding: 0 10px;
+            cursor: move; color: white; font-family: sans-serif; font-size: 12px;
+        }
+        #cmd-close { margin-left: auto; cursor: pointer; color: #ff5555; font-weight: bold; }
+
+        /* ZAWARTOŚĆ TERMINALA */
+        #cmd-content { padding: 15px; height: calc(100% - 30px); overflow-y: auto; }
     </style>
 </head>
 <body>
-    <h1 id="w" style="text-align:center; margin-top:20vh; color:white; text-shadow: 2px 2px 5px #000;"></h1>
-    <div id="taskbar"><b>START</b> <span id="clock" style="margin-left:auto"></span></div>
+
+    <div id="wallpaper-logo">BootOS</div>
+
+    <h1 id="welcome-msg" style="text-align:center; margin-top:20vh; color:white; text-shadow: 2px 2px 10px #000; position:relative; z-index:10;"></h1>
+
+    <div id="cmd-window">
+        <div id="cmd-header">
+            <span>BootOS Command Prompt (cmd.exe)</span>
+            <span id="cmd-close" onclick="toggleCMD()">X</span>
+        </div>
+        <div id="cmd-content">
+            <p>BootOS [Version 1.0.1]</p>
+            <p>(c) BayOSPAL Corporation. Wszystkie prawa zastrzeżone.</p>
+            <br>
+            <p>C:\Users\<span id="cmd-user">Użytkownik</span>> <span style="animation: blink 1s infinite;">_</span></p>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <div id="start-btn">START</div>
+        
+        <div class="taskbar-icon" title="Wiersz polecenia" onclick="toggleCMD()">
+            >_
+        </div>
+
+        <div id="clock"></div>
+    </div>
+
     <script>
-        window.onload = () => {
-            const user = localStorage.getItem('bootos_user');
+        window.onload = function() {
+            // 1. ŁADOWANIE DANYCH
+            const user = localStorage.getItem('bootos_user') || "Użytkownik";
             const theme = localStorage.getItem('bootos_theme');
+
+            // 2. STOSOWANIE USTAWIEŃ
             if(theme === 'light') document.body.classList.add('light-mode');
-            document.getElementById('w').innerText = "Witaj, " + user + "!";
-            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+            document.getElementById('welcome-msg').innerText = "Witaj, " + user + "!";
+            document.getElementById('cmd-user').innerText = user;
+
+            // 3. ZEGAR
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            }, 1000);
         };
+
+        // FUNKCJA OTWIERANIA/ZAMYKANIA CMD
+        function toggleCMD() {
+            const cmd = document.getElementById('cmd-window');
+            if(cmd.style.display === 'block') {
+                cmd.style.display = 'none';
+            } else {
+                cmd.style.display = 'block';
+            }
+        }
+
+        // --- PROSTY SKRYPT DO PRZESUWANIA OKNA ---
+        const cmdHeader = document.getElementById('cmd-header');
+        const cmdWindow = document.getElementById('cmd-window');
+        let isDragging = false, offset = [0,0];
+
+        cmdHeader.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offset = [cmdWindow.offsetLeft - e.clientX, cmdWindow.offsetTop - e.clientY];
+        });
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('mousemove', (e) => {
+            if(isDragging) {
+                cmdWindow.style.left = (e.clientX + offset[0]) + 'px';
+                cmdWindow.style.top = (e.clientY + offset[1]) + 'px';
+            }
+        });
     </script>
 </body>
 </html>
