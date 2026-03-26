@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BootOS - Start</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: black; color: white;
+            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            user-select: none; transition: background-color 3s ease-in-out;
+        }
+        #post-screen { display: block; width: 80%; font-family: 'Courier New', monospace; font-size: 20px; }
+        #logo-layer { display: none; flex-direction: column; align-items: center; }
+        #boot-text { font-size: 100px; font-weight: bold; margin-bottom: 30px; }
+        #arrow-wrapper { display: none; opacity: 0; transition: opacity 1s ease-in; }
+        .circle-btn {
+            width: 100px; height: 100px; background-color: white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .arrow-icon { color: #0000CD; font-size: 50px; }
+        .circle-btn:hover { animation: move 0.5s infinite alternate ease-in-out; }
+        @keyframes move { from { transform: translateX(-15px); } to { transform: translateX(15px); } }
+    </style>
+</head>
+<body>
+    <div id="post-screen">
+        <p>Mainboard: **BayOSPAL** Rev 1.0</p>
+        <p>System Initializing...</p>
+        <p style="margin-top: 50px;">Press **DEL** to enter BIOS</p>
+    </div>
+    <div id="logo-layer">
+        <div id="boot-text">BootOS</div>
+        <div id="arrow-wrapper" onclick="goToConfig()">
+            <div class="circle-btn"><span class="arrow-icon">➔</span></div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(() => { document.getElementById('post-screen').style.display = 'none'; document.getElementById('logo-layer').style.display = 'flex'; }, 3000);
+        setTimeout(() => { document.body.style.backgroundColor = "#0000CD"; }, 4000);
+        setTimeout(() => { 
+            const aw = document.getElementById('arrow-wrapper');
+            aw.style.display = 'block'; 
+            setTimeout(() => { aw.style.opacity = "1"; }, 50);
+        }, 6000);
+
+        function goToConfig() {
+            window.location.href = "config.html";
+        }
+    </script>
+</body>
+</html>
