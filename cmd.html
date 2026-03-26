@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: black; color: #55ff55;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow-y: auto; font-size: 16px;
+        }
+        #terminal-padding { padding: 15px; }
+        .cursor { display: inline-block; width: 10px; height: 18px; background: #55ff55; animation: blink 1s infinite; vertical-align: middle; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .green { color: #55ff55; }
+    </style>
+</head>
+<body>
+    <div id="terminal-padding">
+        <p>BootOS [Version 1.0.4]</p>
+        <p>(c) 2026 BayOSPAL Corporation. Wszystkie prawa zastrzeżone.</p>
+        <br>
+        <p>C:\Users\<span id="user-display">Użytkownik</span>> <span class="cursor"></span></p>
+    </div>
+
+    <script>
+        // Pobieramy nick z pamięci, żeby CMD wiedziało kim jesteś
+        document.getElementById('user-display').innerText = localStorage.getItem('bootos_user') || "Użytkownik";
+    </script>
+</body>
+</html>
