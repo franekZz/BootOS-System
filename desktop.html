@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BootOS - Pulpit</title>
+    <style>
+        body { margin: 0; height: 100vh; background: url('BootOS.png') center/cover; font-family: 'Segoe UI', sans-serif; transition: 0.5s; }
+        body.light-mode { background-color: #fff; background-blend-mode: overlay; }
+        #taskbar { position: absolute; bottom: 0; width: 100%; height: 45px; background: rgba(0,0,0,0.8); color: white; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; }
+        body.light-mode #taskbar { background: rgba(255,255,255,0.8); color: black; }
+    </style>
+</head>
+<body>
+    <h1 id="w" style="text-align:center; margin-top:20vh; color:white; text-shadow: 2px 2px 5px #000;"></h1>
+    <div id="taskbar"><b>START</b> <span id="clock" style="margin-left:auto"></span></div>
+    <script>
+        window.onload = () => {
+            const user = localStorage.getItem('bootos_user');
+            const theme = localStorage.getItem('bootos_theme');
+            if(theme === 'light') document.body.classList.add('light-mode');
+            document.getElementById('w').innerText = "Witaj, " + user + "!";
+            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        };
+    </script>
+</body>
+</html>
