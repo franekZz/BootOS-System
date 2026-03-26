@@ -2,19 +2,11 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Wybór Motywu</title>
+    <title>BootOS - Motyw</title>
     <style>
-        body {
-            margin: 0; height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            font-family: 'Segoe UI', sans-serif; background-color: #0000CD; color: white;
-        }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; background-color: #0000CD; color: white; }
         .options { display: flex; gap: 30px; margin-top: 20px; }
-        .box {
-            width: 150px; height: 150px; border-radius: 15px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; transition: 0.3s; border: 4px solid transparent;
-        }
+        .box { width: 150px; height: 150px; border-radius: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; transition: 0.3s; border: 4px solid transparent; }
         .box:hover { transform: scale(1.1); border-color: white; }
         .light { background: white; color: black; }
         .dark { background: #222; color: white; }
@@ -23,18 +15,11 @@
 <body>
     <h1>KROK 1: Wybierz motyw</h1>
     <div class="options">
-        <div class="box light" onclick="setTheme('light')">JASNY</div>
-        <div class="box dark" onclick="setTheme('dark')">CIEMNY</div>
+        <div class="box light" onclick="setT('light')">JASNY</div>
+        <div class="box dark" onclick="setT('dark')">CIEMNY</div>
     </div>
-
     <script>
-        function setTheme(t) {
-            // Zapisujemy motyw w pamięci przeglądarki
-            localStorage.setItem('bootos_theme', t);
-            
-            // WAŻNE: Upewnij się, że plik na GitHub nazywa się DOKŁADNIE config_user.html
-            window.location.href = "config_user.html"; 
-        }
+        function setT(t) { localStorage.setItem('bootos_theme', t); window.location.href = "config_user.html"; }
     </script>
 </body>
 </html>
