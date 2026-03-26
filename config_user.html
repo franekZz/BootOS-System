@@ -2,35 +2,64 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Krok 1</title>
+    <title>BootOS - Krok 2</title>
     <style>
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             font-family: 'Segoe UI', sans-serif; background-color: #0000CD; color: white;
         }
-        .options { display: flex; gap: 30px; margin-top: 20px; }
-        .box {
-            width: 150px; height: 150px; border-radius: 15px; cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; transition: 0.3s; border: 4px solid transparent;
+        .form-card {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 300px;
         }
-        .box:hover { transform: scale(1.1); border-color: white; }
-        .light { background: white; color: black; }
-        .dark { background: #222; color: white; }
+        input {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        button {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: #0000CD;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #f0f0f0; }
     </style>
 </head>
 <body>
-    <h1>KROK 1: Wybierz motyw</h1>
-    <div class="options">
-        <div class="box light" onclick="setTheme('light')">JASNY</div>
-        <div class="box dark" onclick="setTheme('dark')">CIEMNY</div>
+    <h1>KROK 2: Twój Profil</h1>
+    <div class="form-card">
+        <input type="text" id="nick" placeholder="Podaj nazwę (Nick)...">
+        <input type="password" id="pass" placeholder="Podaj hasło...">
+        <button onclick="finish()">ZAPISZ I URUCHOM</button>
     </div>
 
     <script>
-        function setTheme(t) {
-            localStorage.setItem('bootos_theme', t);
-            window.location.href = "config_user.html"; // Idź do kroku 3
+        function finish() {
+            const n = document.getElementById('nick').value;
+            const p = document.getElementById('pass').value;
+
+            if(n && p) {
+                localStorage.setItem('bootos_user', n);
+                localStorage.setItem('bootos_pass', p);
+                localStorage.setItem('bootos_configured', 'true');
+                window.location.href = "desktop.html"; // Teraz na pulpit
+            } else {
+                alert("Wypełnij oba pola!");
+            }
         }
     </script>
 </body>
