@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Krok 1</title>
+    <title>BootOS - Wybór Motywu</title>
     <style>
         body {
             margin: 0; height: 100vh; display: flex; flex-direction: column;
@@ -29,8 +29,11 @@
 
     <script>
         function setTheme(t) {
+            // Zapisujemy motyw w pamięci przeglądarki
             localStorage.setItem('bootos_theme', t);
-            window.location.href = "config_user.html"; // Idź do kroku 3
+            
+            // WAŻNE: Upewnij się, że plik na GitHub nazywa się DOKŁADNIE config_user.html
+            window.location.href = "config_user.html"; 
         }
     </script>
 </body>
