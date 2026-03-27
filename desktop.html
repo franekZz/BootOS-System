@@ -2,107 +2,130 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Pulpit</title>
+    <title>BootOS Terminal</title>
     <style>
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            font-family: 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at center, #000080 0%, #000000 100%);
-            color: white;
+            margin: 0; padding: 0; height: 100%;
+            background-color: black; color: #55ff55;
+            font-family: 'Consolas', 'Lucida Console', monospace;
+            font-size: 16px; overflow: hidden;
         }
-
-        /* LOGO NA ŚRODKU */
-        #wallpaper-logo {
-            position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 120px; font-weight: bold; opacity: 0.1; user-select: none;
+        #terminal { padding: 15px; height: 100%; overflow-y: auto; box-sizing: border-box; }
+        .line { margin-bottom: 5px; white-space: pre-wrap; word-break: break-all; }
+        .input-area { display: flex; align-items: center; }
+        #user-input {
+            background: transparent; border: none; color: #55ff55;
+            font-family: inherit; font-size: inherit; outline: none;
+            flex-grow: 1; margin-left: 5px;
         }
-
-        /* PASEK ZADAŃ */
-        #taskbar {
-            position: absolute; bottom: 0; width: 100%; height: 45px;
-            background: rgba(0,0,0,0.9); display: flex; align-items: center; padding: 0 10px; z-index: 1000;
-        }
-
-        .taskbar-icon {
-            width: 35px; height: 35px; background: #222; border: 1px solid #444;
-            color: #55ff55; display: flex; justify-content: center; align-items: center;
-            border-radius: 5px; cursor: pointer; margin-right: 10px; font-family: monospace;
-        }
-
-        /* OKNO SYSTEMOWE (Dla CMD) */
-        #window-wrapper {
-            display: none; position: absolute; top: 50px; left: 50px;
-            width: 700px; height: 450px; background: #333;
-            border-radius: 8px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            z-index: 100; flex-direction: column;
-        }
-
-        #window-header {
-            height: 35px; background: #222; display: flex; align-items: center;
-            padding: 0 15px; cursor: move; user-select: none;
-        }
-
-        #window-close { margin-left: auto; color: #ff5555; cursor: pointer; font-weight: bold; }
-
-        /* RAMKA WCZYTUJĄCA CMD.HTML */
-        #window-frame { width: 100%; height: 100%; border: none; background: black; }
-
-        #clock { margin-left: auto; font-weight: bold; }
+        .prompt { color: #55ff55; font-weight: bold; }
     </style>
 </head>
-<body>
+<body onclick="document.getElementById('user-input').focus()">
 
-    <div id="wallpaper-logo">BootOS</div>
-
-    <div id="window-wrapper">
-        <div id="window-header">
-            <span>Wiersz polecenia (CMD)</span>
-            <span id="window-close" onclick="toggleCMD()">X</span>
+    <div id="terminal">
+        <div id="history">
+            <div class="line">BootOS Command Prompt [Wersja 1.1.0]</div>
+            <div class="line">Wpisz 'help', aby zobaczyć listę komend.</div>
+            <br>
         </div>
-        <iframe src="CMD.html" id="window-frame"></iframe>
-    </div>
-
-    <div id="taskbar">
-        <div style="margin-right:20px;"><b>START</b></div>
-        <div class="taskbar-icon" onclick="toggleCMD()">>_</div>
-        <div id="clock">00:00</div>
+        
+        <div class="input-area">
+            <span class="prompt">C:\Users\<span id="user-display">Użytkownik</span>></span>
+            <input type="text" id="user-input" autofocus spellcheck="false">
+        </div>
     </div>
 
     <script>
-        // ZEGAR I DANE
-        setInterval(() => {
-            const d = new Date();
-            document.getElementById('clock').innerText = d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0');
-        }, 1000);
+        const input = document.getElementById('user-input');
+        const history = document.getElementById('history');
+        const userDisplay = document.getElementById('user-display');
+        const terminal = document.getElementById('terminal');
 
-        function toggleCMD() {
-            const win = document.getElementById('window-wrapper');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
+        const savedUser = localStorage.getItem('bootos_user') || "Użytkownik";
+        const savedPass = localStorage.getItem('bootos_pass') || "";
+        userDisplay.innerText = savedUser;
 
-        // PRZESUWANIE OKNA
-        const wrapper = document.getElementById('window-wrapper');
-        const header = document.getElementById('window-header');
-        let active = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+        let waitingForPass = false;
 
-        header.addEventListener("mousedown", (e) => {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-            active = true;
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (active) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                wrapper.style.transform = "translate(" + currentX + "px, " + currentY + "px)";
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = input.value.trim();
+                
+                if (waitingForPass) {
+                    checkResetPassword(val);
+                } else {
+                    addLine(`C:\\Users\\${savedUser}> ${input.value}`);
+                    processCommand(val.toLowerCase());
+                }
+                
+                input.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
             }
         });
 
-        document.addEventListener("mouseup", () => active = false);
+        function addLine(text, color = "#55ff55") {
+            const div = document.createElement('div');
+            div.className = 'line';
+            div.style.color = color;
+            div.innerText = text;
+            history.appendChild(div);
+        }
+
+        function processCommand(cmd) {
+            if (cmd === '') return;
+
+            switch(cmd) {
+                case 'help':
+                    addLine("Dostępne komendy:");
+                    addLine("  reset  - Restartuje system (wymaga hasła)");
+                    addLine("  cls    - Czyści ekran");
+                    addLine("  whoami - Twoja nazwa");
+                    addLine("  exit   - Zamknij terminal");
+                    break;
+
+                case 'reset':
+                    if (savedPass === "") {
+                        executeReset();
+                    } else {
+                        addLine("SYSTEM: Podaj hasło administratora, aby zrestartować:");
+                        waitingForPass = true;
+                        input.type = "password"; // Ukrywamy wpisywane hasło
+                    }
+                    break;
+
+                case 'cls':
+                    history.innerHTML = '';
+                    break;
+
+                case 'whoami':
+                    addLine(savedUser);
+                    break;
+
+                default:
+                    addLine(`Nazwa '${cmd}' nie jest rozpoznawana.`);
+                    break;
+            }
+        }
+
+        function checkResetPassword(pass) {
+            if (pass === savedPass) {
+                executeReset();
+            } else {
+                addLine("BŁĄD: Niepoprawne hasło. Reset przerwany.", "#ff5555");
+                waitingForPass = false;
+                input.type = "text";
+            }
+        }
+
+        function executeReset() {
+            addLine("Restartowanie systemu...", "#ffff55");
+            setTimeout(() => {
+                // Czyścimy flagę konfiguracji, żeby wrócić do początku (index.html)
+                // Jeśli chcesz tylko restartu bez kasowania danych, użyj: window.top.location.href = "index.html";
+                window.top.location.href = "index.html";
+            }, 2000);
+        }
     </script>
 </body>
 </html>
