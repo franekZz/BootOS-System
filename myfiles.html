@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Moje Pliki - BootiX17</title>
+    <style>
+        :root {
+            --neon-blue: #0078d7;
+            --bg-dark: #0a0a0a;
+            --folder-color: #ffca28;
+        }
+
+        body {
+            margin: 0; padding: 0; background: var(--bg-dark); color: #fff;
+            font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh;
+        }
+
+        /* BOCZNY PANEL DYSKÓW */
+        #drive-sidebar {
+            width: 200px; background: #111; border-right: 1px solid #222; padding: 20px;
+        }
+
+        .drive-item {
+            padding: 10px; margin-bottom: 10px; cursor: pointer; border-radius: 5px;
+            display: flex; align-items: center; gap: 10px; transition: 0.2s;
+        }
+
+        .drive-item:hover { background: #1a1a1a; color: var(--neon-blue); }
+        .drive-item.active { background: var(--neon-blue); color: #fff; }
+
+        /* GŁÓWNY WIDOK PLIKÓW */
+        #file-view { flex: 1; padding: 30px; }
+        
+        #path-bar {
+            background: #151515; padding: 10px 20px; border-radius: 5px;
+            margin-bottom: 20px; font-family: monospace; color: #888; border: 1px solid #222;
+        }
+
+        .file-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 20px;
+        }
+
+        .item {
+            text-align: center; cursor: pointer; padding: 15px; border-radius: 10px; transition: 0.2s;
+        }
+
+        .item:hover { background: rgba(0, 120, 215, 0.1); }
+        .item img { width: 64px; height: 64px; margin-bottom: 8px; }
+        .item span { display: block; font-size: 13px; word-break: break-all; }
+
+        /* SPECJALNY STYL DLA WIRUSA */
+        .virus-file { color: #ff4444; text-shadow: 0 0 5px #ff4444; }
+
+        .btn-close {
+            position: fixed; top: 15px; right: 15px; background: #222; border: none;
+            color: #fff; padding: 5px 15px; cursor: pointer; border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-close" onclick="window.location.href='homedesktop.html'">Zamknij X</button>
+
+    <div id="drive-sidebar">
+        <h4 style="margin-top: 0; opacity: 0.5;">Urządzenia</h4>
+        <div class="drive-item">💾 Dysk Lokalny (C:)</div>
+        <div class="drive-item active">📀 System Q (Q:)</div>
+    </div>
+
+    <div id="file-view">
+        <div id="path-bar">Q:\System\Mój wirus\</div>
+
+        <div class="file-grid">
+            <div class="item" title="Folder Systemowy">
+                <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
+                <span>CoreData</span>
+            </div>
+
+            <div class="item" title="Logi Qumix">
+                <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
+                <span>QumixLogs</span>
+            </div>
+
+            <div class="item" onclick="runVirus('win')">
+                <img src="https://cdn-icons-png.flaticon.com/512/9068/9068678.png">
+                <span class="virus-file">Wirus.exe</span>
+            </div>
+
+            <div class="item" onclick="runVirus('blueq')">
+                <img src="https://cdn-icons-png.flaticon.com/512/9068/9068695.png">
+                <span class="virus-file">wirus.blueq</span>
+            </div>
+
+            <div class="item" onclick="alert('Notatka: Nie uruchamiaj plików z rozszerzeniem .blueq na tym systemie!')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
+                <span>README.txt</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runVirus(type) {
+            if(type === 'win') {
+                alert("BŁĄD: Nie można uruchomić pliku .exe. \nPowód: BootiX17 nie jest systemem Windows.");
+            } else {
+                // Symulacja działania wirusa na BlueOS
+                document.body.style.transition = "0.1s";
+                let count = 0;
+                const glitch = setInterval(() => {
+                    document.body.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+                    document.body.style.filter = `hue-rotate(${Math.random()*360}deg) invert(1)`;
+                    count++;
+                    if(count > 20) {
+                        clearInterval(glitch);
+                        document.body.style.filter = "none";
+                        document.body.style.transform = "none";
+                        alert("Wirus .blueq wykonał operację wstrzyknięcia do jądra Qumix.");
+                    }
+                }, 50);
+            }
+        }
+    </script>
+</body>
+</html>
