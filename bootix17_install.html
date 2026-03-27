@@ -2,35 +2,199 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BlueOS - Instalator BootiX17</title>
+    <title>BootiX17 Setup - BlueOS NextGen</title>
     <style>
-        body { background: #004578; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        #setup { width: 500px; text-align: center; }
-        .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.2); margin: 30px 0; overflow: hidden; }
-        .fill { width: 0%; height: 100%; background: #fff; animation: install 10s forwards linear; }
-        @keyframes install { to { width: 100%; } }
+        :root { --blue: #0078d7; --purple: #8e44ad; --white: #ffffff; }
+        body { 
+            margin: 0; padding: 0; background: #000; color: #fff; 
+            font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* TŁO Z KOLOROWYMI BĄBELKAMI */
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            filter: blur(60px); opacity: 0.6;
+        }
+
+        .setup-win {
+            background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(255,255,255,0.1);
+            width: 800px; padding: 50px; border-radius: 15px; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center;
+        }
+
+        .step { display: none; animation: fadeIn 0.5s ease; }
+        .active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* WYBÓR KRAJU & WERSJI */
+        select, input {
+            background: #222; border: 1px solid #444; color: #fff;
+            padding: 12px; width: 100%; margin: 10px 0; border-radius: 5px; font-size: 16px;
+        }
+
+        .grid-ver { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .ver-card {
+            background: rgba(255,255,255,0.05); border: 1px solid #333;
+            padding: 20px; cursor: pointer; border-radius: 10px; transition: 0.2s; text-align: left;
+        }
+        .ver-card:hover { background: var(--blue); border-color: #fff; }
+        .ver-card b { display: block; font-size: 18px; margin-bottom: 5px; }
+        .ver-card span { font-size: 12px; opacity: 0.7; }
+
+        /* PRZYCISKI */
+        .btn-next {
+            background: var(--blue); color: #fff; border: none; padding: 12px 40px;
+            font-weight: bold; cursor: pointer; margin-top: 30px; border-radius: 5px;
+        }
+
+        /* EKRAN KOŃCOWY - BĄBELKI */
+        #final-text { font-size: 28px; font-weight: 300; }
     </style>
 </head>
 <body>
-    <div id="setup">
-        <h1 style="font-weight: 300;">Instalowanie BootiX17</h1>
-        <p>Proszę czekać, przygotowujemy Twój nowy pulpit...</p>
-        <div class="progress-bar"><div class="fill"></div></div>
-        <p id="percent" style="font-size: 14px; opacity: 0.7;">Pobieranie składników: 0%</p>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="setup-win">
+        
+        <div id="step1" class="step active">
+            <h1>Wybierz region</h1>
+            <p>Ustawimy język i formaty pod Twoją lokalizację.</p>
+            <select id="country">
+                <option value="pl">Polska (Poland)</option>
+            </select>
+            <button class="btn-next" onclick="nextStep(2)">Dalej</button>
+        </div>
+
+        <div id="step2" class="step">
+            <h1>Wybierz wersję BootiX17</h1>
+            <div class="grid-ver">
+                <div class="ver-card" onclick="selectVer('Home')">
+                    <b>Home</b> <span>Dom, granie, multimedia. Spoko opcja.</span>
+                </div>
+                <div class="ver-card" onclick="selectVer('Pro')">
+                    <b>Pro</b> <span>Dla gamerów. Zawiera VM i zaawansowane opcje.</span>
+                </div>
+                <div class="ver-card" onclick="selectVer('Lite')">
+                    <b>Lite</b> <span>Praca, internet, notatnik. Nie zacina się.</span>
+                </div>
+                <div class="ver-card" onclick="selectVer('ProAI')">
+                    <b>ProAI</b> <span>Beta testy, AI w grach, nowości od razu.</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="step3" class="step">
+            <h1 id="key-title">Klucz produktu</h1>
+            <p>Wpisz klucz dla wersji: <b id="selected-ver-name"></b></p>
+            <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX-XXXXX">
+            <button class="btn-next" onclick="validateKey()">Aktywuj i instaluj</button>
+        </div>
+
+        <div id="step4" class="step">
+            <h1 id="install-status">Instalowanie systemu na dysk...</h1>
+            <p id="sub-status">Pobieranie nowych składników BlueOS</p>
+            <div style="width: 100%; height: 4px; background: #222; margin: 20px 0;">
+                <div id="bar" style="width: 0%; height: 100%; background: var(--blue); transition: 0.3s;"></div>
+            </div>
+        </div>
+
+        <div id="step5" class="step">
+            <div id="final-text">Wszystko przygotujemy za ciebie.</div>
+            <p style="opacity: 0.6; margin-top: 20px;">Już tylko chwilka...</p>
+        </div>
+
     </div>
 
     <script>
-        let p = 0;
-        const txt = document.getElementById('percent');
-        const interval = setInterval(() => {
-            p++;
-            txt.innerText = "Konfigurowanie systemu Qumix... " + p + "%";
-            if(p >= 100) {
-                clearInterval(interval);
-                alert("Instalacja zakończona sukcesem. Witaj w BootiX17!");
-                window.location.href = "pulpit_nowy.html";
+        let currentVer = "";
+
+        function nextStep(s) {
+            document.querySelectorAll('.step').forEach(div => div.classList.remove('active'));
+            document.getElementById('step' + s).classList.add('active');
+        }
+
+        function selectVer(v) {
+            currentVer = v;
+            document.getElementById('selected-ver-name').innerText = v;
+            document.getElementById('key-title').innerText = "Klucz dla BootiX17 " + v;
+            nextStep(3);
+        }
+
+        function validateKey() {
+            const key = document.getElementById('license-key').value;
+            if(key.length < 5) {
+                alert("Wpisz poprawny klucz!");
+                return;
             }
-        }, 100);
+            startInstallation();
+        }
+
+        function startInstallation() {
+            nextStep(4);
+            let p = 0;
+            const bar = document.getElementById('bar');
+            const status = document.getElementById('install-status');
+            const sub = document.getElementById('sub-status');
+
+            const int = setInterval(() => {
+                p++;
+                bar.style.width = p + "%";
+                if(p == 30) { status.innerText = "Dopicowanie systemu..."; sub.innerText = "Konfigurowanie interfejsu BlueOS"; }
+                if(p == 70) { status.innerText = "Przygotowywanie składników..."; sub.innerText = "Optymalizacja jądra Qumix"; }
+                
+                if(p >= 100) {
+                    clearInterval(int);
+                    nextStep(5);
+                    setTimeout(() => {
+                        window.location.href = "pulpit_nowy.html";
+                    }, 5000);
+                }
+            }, 100);
+        }
+
+        // ANIMACJA BĄBELKÓW (CANVAS)
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        const colors = ['#0078d7', '#ffffff', '#8e44ad'];
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 100 + 50;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 15; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
     </script>
 </body>
 </html>
