@@ -1,0 +1,20 @@
+<body style="background:#000; color:#fff; font-family:monospace; padding:30px;">
+    <h2 style="color:#00f2ff;">[ OGÓLNE ]</h2>
+    <p>Konfiguracja Systemu BlueBoard</p>
+    <hr>
+    <div style="margin-top:40px;">
+        <button onclick="resetBios()" style="padding:15px; background:#440000; color:#fff; border:1px solid red; cursor:pointer;">
+            RESET-FORMAT BIOS (USUŃ QUMIX)
+        </button>
+        <p style="font-size:12px; color:#666; margin-top:10px;">Ostrzeżenie: Ta operacja sformatuje Dysk Q: i przywróci ustawienia fabryczne.</p>
+    </div>
+
+    <script>
+        function resetBios() {
+            if(confirm("Czy na pewno chcesz wykonać Format? Stracisz system operacyjny.")) {
+                localStorage.clear();
+                parent.location.href = 'index.html'; // Powrót do czystego startu
+            }
+        }
+    </script>
+</body>
