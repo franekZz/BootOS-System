@@ -2,122 +2,120 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Moje Pliki - BootiX17</title>
+    <title>Eksplorator Plików - BootiX17</title>
     <style>
-        :root {
-            --neon-blue: #0078d7;
-            --bg-dark: #0a0a0a;
-            --folder-color: #ffca28;
-        }
-
-        body {
-            margin: 0; padding: 0; background: var(--bg-dark); color: #fff;
-            font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh;
-        }
-
-        /* BOCZNY PANEL DYSKÓW */
-        #drive-sidebar {
-            width: 200px; background: #111; border-right: 1px solid #222; padding: 20px;
-        }
-
-        .drive-item {
-            padding: 10px; margin-bottom: 10px; cursor: pointer; border-radius: 5px;
-            display: flex; align-items: center; gap: 10px; transition: 0.2s;
-        }
-
-        .drive-item:hover { background: #1a1a1a; color: var(--neon-blue); }
-        .drive-item.active { background: var(--neon-blue); color: #fff; }
-
-        /* GŁÓWNY WIDOK PLIKÓW */
-        #file-view { flex: 1; padding: 30px; }
+        :root { --neon-blue: #0078d7; --bg: #050505; --virus: #ff4444; --pytonia: #4cc9f0; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
-        #path-bar {
-            background: #151515; padding: 10px 20px; border-radius: 5px;
-            margin-bottom: 20px; font-family: monospace; color: #888; border: 1px solid #222;
+        /* SIDEBAR */
+        #sidebar { width: 220px; background: #0f0f0f; border-right: 1px solid #222; padding: 20px; }
+        .nav-link { padding: 10px; cursor: pointer; border-radius: 5px; margin-bottom: 5px; display: block; color: #888; text-decoration: none; }
+        .nav-link:hover { background: #1a1a1a; color: #fff; }
+        .nav-link.active { background: var(--neon-blue); color: #fff; }
+
+        /* MAIN VIEW */
+        #content { flex: 1; padding: 30px; position: relative; }
+        #path { background: #111; padding: 10px; border-radius: 5px; border: 1px solid #222; margin-bottom: 25px; font-family: monospace; font-size: 14px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 20px; }
+        .item { text-align: center; cursor: pointer; padding: 15px; border-radius: 10px; transition: 0.2s; border: 1px solid transparent; }
+        .item:hover { background: rgba(255,255,255,0.05); border-color: #333; }
+        .item img { width: 55px; height: 55px; margin-bottom: 10px; }
+        .item span { display: block; font-size: 12px; }
+
+        /* KOLORY SPECJALNE */
+        .ext-blueq { color: var(--virus); font-weight: bold; }
+        .ext-blue { color: var(--pytonia); font-weight: bold; }
+
+        /* OKNO PYTONI */
+        #pytonia-terminal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 500px; height: 300px; background: #000; border: 2px solid var(--pytonia);
+            box-shadow: 0 0 30px rgba(76, 201, 240, 0.3); z-index: 1000; padding: 20px; font-family: monospace;
         }
-
-        .file-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 20px;
-        }
-
-        .item {
-            text-align: center; cursor: pointer; padding: 15px; border-radius: 10px; transition: 0.2s;
-        }
-
-        .item:hover { background: rgba(0, 120, 215, 0.1); }
-        .item img { width: 64px; height: 64px; margin-bottom: 8px; }
-        .item span { display: block; font-size: 13px; word-break: break-all; }
-
-        /* SPECJALNY STYL DLA WIRUSA */
-        .virus-file { color: #ff4444; text-shadow: 0 0 5px #ff4444; }
-
-        .btn-close {
-            position: fixed; top: 15px; right: 15px; background: #222; border: none;
-            color: #fff; padding: 5px 15px; cursor: pointer; border-radius: 5px;
-        }
+        .close-term { float: right; cursor: pointer; color: var(--pytonia); }
     </style>
 </head>
 <body>
 
-    <button class="btn-close" onclick="window.location.href='homedesktop.html'">Zamknij X</button>
-
-    <div id="drive-sidebar">
-        <h4 style="margin-top: 0; opacity: 0.5;">Urządzenia</h4>
-        <div class="drive-item">💾 Dysk Lokalny (C:)</div>
-        <div class="drive-item active">📀 System Q (Q:)</div>
+    <div id="sidebar">
+        <h3 style="color: var(--neon-blue); font-size: 16px;">Ten Komputer</h3>
+        <div class="nav-link">Dysk Lokalny (C:)</div>
+        <div class="nav-link active">System Q (Q:)</div>
+        <hr style="border: 0; border-top: 1px solid #222; margin: 20px 0;">
+        <button onclick="window.location.href='homedesktop.html'" style="width:100%; background:#222; color:#fff; border:0; padding:10px; cursor:pointer;">Pulpit</button>
     </div>
 
-    <div id="file-view">
-        <div id="path-bar">Q:\System\Mój wirus\</div>
+    <div id="content">
+        <div id="path">Q:\System\Programy\</div>
 
-        <div class="file-grid">
-            <div class="item" title="Folder Systemowy">
+        <div class="grid">
+            <div class="item" onclick="alert('Tu są pliki wirusa. Użyj Pytonii, aby je odpalić.')">
                 <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
-                <span>CoreData</span>
+                <span>Mój wirus</span>
             </div>
 
-            <div class="item" title="Logi Qumix">
-                <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
-                <span>QumixLogs</span>
+            <div class="item" onclick="startPytonia()">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968350.png">
+                <span class="ext-blue">Pytonia.blue</span>
             </div>
 
-            <div class="item" onclick="runVirus('win')">
-                <img src="https://cdn-icons-png.flaticon.com/512/9068/9068678.png">
-                <span class="virus-file">Wirus.exe</span>
-            </div>
-
-            <div class="item" onclick="runVirus('blueq')">
+            <div class="item" onclick="tryRunVirus('wirus.blueq')">
                 <img src="https://cdn-icons-png.flaticon.com/512/9068/9068695.png">
-                <span class="virus-file">wirus.blueq</span>
-            </div>
-
-            <div class="item" onclick="alert('Notatka: Nie uruchamiaj plików z rozszerzeniem .blueq na tym systemie!')">
-                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
-                <span>README.txt</span>
+                <span class="ext-blueq">wirus.blueq</span>
             </div>
         </div>
     </div>
 
+    <div id="pytonia-terminal">
+        <span class="close-term" onclick="closePytonia()">[X]</span>
+        <div style="color: var(--pytonia);">Pytonia v1.0.2 - BlueOS Runtime</div>
+        <div id="terminal-out" style="margin-top: 15px; color: #fff; font-size: 13px;">
+            > System gotowy.<br>
+            > Oczekiwanie na plik .blueq...
+        </div>
+    </div>
+
     <script>
-        function runVirus(type) {
-            if(type === 'win') {
-                alert("BŁĄD: Nie można uruchomić pliku .exe. \nPowód: BootiX17 nie jest systemem Windows.");
+        let isPytoniaRunning = false;
+
+        function startPytonia() {
+            isPytoniaRunning = true;
+            document.getElementById('pytonia-terminal').style.display = 'block';
+            document.getElementById('terminal-out').innerHTML += "<br>> Interpreter załadowany.";
+        }
+
+        function closePytonia() {
+            isPytoniaRunning = false;
+            document.getElementById('pytonia-terminal').style.display = 'none';
+        }
+
+        function tryRunVirus(fileName) {
+            if (!isPytoniaRunning) {
+                alert("BŁĄD: System nie posiada domyślnej aplikacji dla rozszerzenia .blueq. \n\nZainstaluj lub uruchom środowisko Pytonia.blue");
             } else {
-                // Symulacja działania wirusa na BlueOS
-                document.body.style.transition = "0.1s";
-                let count = 0;
-                const glitch = setInterval(() => {
-                    document.body.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
-                    document.body.style.filter = `hue-rotate(${Math.random()*360}deg) invert(1)`;
-                    count++;
-                    if(count > 20) {
-                        clearInterval(glitch);
-                        document.body.style.filter = "none";
-                        document.body.style.transform = "none";
-                        alert("Wirus .blueq wykonał operację wstrzyknięcia do jądra Qumix.");
-                    }
-                }, 50);
+                executeVirus();
             }
+        }
+
+        function executeVirus() {
+            const out = document.getElementById('terminal-out');
+            out.innerHTML += "<br><span style='color:red'>> Uruchamianie: wirus.blueq...</span>";
+            out.innerHTML += "<br>> Wstrzykiwanie kodu do Qumix... 100%";
+            
+            setTimeout(() => {
+                // Efekt ataku
+                document.body.style.filter = "invert(1) hue-rotate(180deg)";
+                document.body.style.transform = "skewX(5deg)";
+                
+                // Zapisujemy w pamięci, że pulpit ma być zhakowany
+                localStorage.setItem('systemHacked', 'true');
+                
+                setTimeout(() => {
+                    alert("WIRUS AKTYWNY: System NewUI został zmodyfikowany.");
+                    window.location.href = "homedesktop.html";
+                }, 2000);
+            }, 1000);
         }
     </script>
 </body>
