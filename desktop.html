@@ -2,130 +2,137 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS Terminal</title>
+    <title>BootOS - Pulpit</title>
     <style>
+        /* --- STYL PULPITU I TAPETY --- */
         body, html {
-            margin: 0; padding: 0; height: 100%;
-            background-color: black; color: #55ff55;
-            font-family: 'Consolas', 'Lucida Console', monospace;
-            font-size: 16px; overflow: hidden;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Segoe UI', sans-serif;
+            /* TAPETA CZARNO-NIEBIESKA */
+            background: radial-gradient(circle at center, #001a4d 0%, #000000 100%);
+            color: white;
         }
-        #terminal { padding: 15px; height: 100%; overflow-y: auto; box-sizing: border-box; }
-        .line { margin-bottom: 5px; white-space: pre-wrap; word-break: break-all; }
-        .input-area { display: flex; align-items: center; }
-        #user-input {
-            background: transparent; border: none; color: #55ff55;
-            font-family: inherit; font-size: inherit; outline: none;
-            flex-grow: 1; margin-left: 5px;
+
+        /* NAPIS BOOTOS NA ŚRODKU TAPETY */
+        #wallpaper-logo {
+            position: absolute; top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(50px, 10vw, 120px);
+            font-weight: bold; letter-spacing: 15px;
+            opacity: 0.1; user-select: none; pointer-events: none;
         }
-        .prompt { color: #55ff55; font-weight: bold; }
+
+        /* --- PASEK ZADAŃ --- */
+        #taskbar {
+            position: absolute; bottom: 0; width: 100%; height: 45px;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; padding: 0 15px;
+            box-sizing: border-box; z-index: 1000;
+        }
+
+        #start-btn { font-weight: bold; margin-right: 20px; cursor: pointer; color: #55ff55; }
+
+        /* IKONA CMD NA PASKU */
+        .taskbar-icon {
+            width: 32px; height: 32px; background: #111;
+            border: 1px solid #444; border-radius: 4px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.2s; color: #55ff55; font-family: monospace;
+        }
+        .taskbar-icon:hover { background: #222; transform: translateY(-2px); }
+
+        #clock { margin-left: auto; font-family: monospace; font-size: 16px; }
+
+        /* --- OKNO SYSTEMOWE (Dla cmd.html) --- */
+        #window-container {
+            display: none; position: absolute;
+            top: 10%; left: 10%; width: 700px; height: 450px;
+            background: #000; border: 1px solid #555;
+            border-radius: 6px; box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            flex-direction: column; z-index: 500;
+        }
+
+        #window-header {
+            height: 32px; background: #222; display: flex;
+            align-items: center; padding: 0 10px; cursor: move;
+            user-select: none; font-size: 13px; color: #ccc;
+        }
+
+        #close-btn { margin-left: auto; cursor: pointer; color: #ff5555; font-weight: bold; padding: 0 5px; }
+
+        /* RAMKA WCZYTUJĄCA PLIK CMD.HTML */
+        #cmd-frame {
+            width: 100%; height: 100%; border: none; background: black;
+        }
+
+        /* POWITANIE NA ŚRODKU */
+        #welcome-text {
+            position: absolute; top: 20%; width: 100%;
+            text-align: center; font-size: 32px; font-weight: 300;
+            text-shadow: 0 0 15px rgba(0,100,255,0.5);
+        }
     </style>
 </head>
-<body onclick="document.getElementById('user-input').focus()">
+<body>
 
-    <div id="terminal">
-        <div id="history">
-            <div class="line">BootOS Command Prompt [Wersja 1.1.0]</div>
-            <div class="line">Wpisz 'help', aby zobaczyć listę komend.</div>
-            <br>
+    <div id="wallpaper-logo">BootOS</div>
+    <div id="welcome-text">Witaj, <span id="user-name">Użytkownik</span></div>
+
+    <div id="window-container">
+        <div id="window-header" id="drag-handle">
+            <span>C:\Windows\System32\cmd.exe</span>
+            <div id="close-btn" onclick="toggleCMD()">X</div>
         </div>
-        
-        <div class="input-area">
-            <span class="prompt">C:\Users\<span id="user-display">Użytkownik</span>></span>
-            <input type="text" id="user-input" autofocus spellcheck="false">
-        </div>
+        <iframe src="cmd.html" id="cmd-frame"></iframe>
+    </div>
+
+    <div id="taskbar">
+        <div id="start-btn">START</div>
+        <div class="taskbar-icon" onclick="toggleCMD()" title="Wiersz Polecenia">>_</div>
+        <div id="clock">00:00:00</div>
     </div>
 
     <script>
-        const input = document.getElementById('user-input');
-        const history = document.getElementById('history');
-        const userDisplay = document.getElementById('user-display');
-        const terminal = document.getElementById('terminal');
+        // 1. DANE I ZEGAR
+        window.onload = function() {
+            const nick = localStorage.getItem('bootos_user') || "Użytkownik";
+            document.getElementById('user-name').innerText = nick;
 
-        const savedUser = localStorage.getItem('bootos_user') || "Użytkownik";
-        const savedPass = localStorage.getItem('bootos_pass') || "";
-        userDisplay.innerText = savedUser;
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleTimeString();
+            }, 1000);
+        };
 
-        let waitingForPass = false;
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const val = input.value.trim();
-                
-                if (waitingForPass) {
-                    checkResetPassword(val);
-                } else {
-                    addLine(`C:\\Users\\${savedUser}> ${input.value}`);
-                    processCommand(val.toLowerCase());
-                }
-                
-                input.value = '';
-                terminal.scrollTop = terminal.scrollHeight;
-            }
-        });
-
-        function addLine(text, color = "#55ff55") {
-            const div = document.createElement('div');
-            div.className = 'line';
-            div.style.color = color;
-            div.innerText = text;
-            history.appendChild(div);
-        }
-
-        function processCommand(cmd) {
-            if (cmd === '') return;
-
-            switch(cmd) {
-                case 'help':
-                    addLine("Dostępne komendy:");
-                    addLine("  reset  - Restartuje system (wymaga hasła)");
-                    addLine("  cls    - Czyści ekran");
-                    addLine("  whoami - Twoja nazwa");
-                    addLine("  exit   - Zamknij terminal");
-                    break;
-
-                case 'reset':
-                    if (savedPass === "") {
-                        executeReset();
-                    } else {
-                        addLine("SYSTEM: Podaj hasło administratora, aby zrestartować:");
-                        waitingForPass = true;
-                        input.type = "password"; // Ukrywamy wpisywane hasło
-                    }
-                    break;
-
-                case 'cls':
-                    history.innerHTML = '';
-                    break;
-
-                case 'whoami':
-                    addLine(savedUser);
-                    break;
-
-                default:
-                    addLine(`Nazwa '${cmd}' nie jest rozpoznawana.`);
-                    break;
-            }
-        }
-
-        function checkResetPassword(pass) {
-            if (pass === savedPass) {
-                executeReset();
+        // 2. OTWIERANIE / ZAMYKANIE CMD
+        function toggleCMD() {
+            const win = document.getElementById('window-container');
+            if(win.style.display === "flex") {
+                win.style.display = "none";
             } else {
-                addLine("BŁĄD: Niepoprawne hasło. Reset przerwany.", "#ff5555");
-                waitingForPass = false;
-                input.type = "text";
+                win.style.display = "flex";
             }
         }
 
-        function executeReset() {
-            addLine("Restartowanie systemu...", "#ffff55");
-            setTimeout(() => {
-                // Czyścimy flagę konfiguracji, żeby wrócić do początku (index.html)
-                // Jeśli chcesz tylko restartu bez kasowania danych, użyj: window.top.location.href = "index.html";
-                window.top.location.href = "index.html";
-            }, 2000);
-        }
+        // 3. PRZESUWANIE OKNA (DRAG & DROP)
+        const win = document.getElementById('window-container');
+        const header = document.getElementById('window-header');
+        let isDragging = false, offset = [0,0];
+
+        header.onmousedown = function(e) {
+            isDragging = true;
+            offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
+        };
+
+        document.onmouseup = function() { isDragging = false; };
+
+        document.onmousemove = function(e) {
+            if (isDragging) {
+                win.style.left = (e.clientX + offset[0]) + 'px';
+                win.style.top = (e.clientY + offset[1]) + 'px';
+            }
+        };
     </script>
 </body>
 </html>
