@@ -2,127 +2,134 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS Startup</title>
+    <title>BootOS / BootiX Loader</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
+        /* ŻÓŁTA MYSZKA */
+        * { cursor: url('https://cur.cursors-4u.net/others/oth-9/oth814.cur'), default !important; }
+
+        body { margin: 0; background: #000; color: #fff; font-family: 'Consolas', monospace; overflow: hidden; height: 100vh; }
         
-        /* 1. EKRAN ŁADOWANIA (6 sekund) */
-        #boot-loader {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; transition: opacity 1s;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #0078d7; border-radius: 50%; animation: spin 1s linear infinite;
-        }
+        /* ŁADOWANIE */
+        #boot-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #333; border-top-color: #ffeb3b; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 2. ANIMACJA NAPISU BootOS (Z czarnego na niebieski) */
-        #logo-screen {
-            display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center;
-            background: #000; animation: bgToBlue 2s forwards 0.5s;
-        }
-        @keyframes bgToBlue { from { background: #000; } to { background: #001a33; } }
+        /* LOGO I ANIMACJA TŁA */
+        #logo-screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; transition: 2s; }
+        #logo-text { font-size: 70px; font-weight: 900; letter-spacing: 5px; }
 
-        #logo-text {
-            font-size: 80px; font-weight: 900; color: #000;
-            animation: textToBlue 2s forwards 0.5s; letter-spacing: 5px;
-        }
-        @keyframes textToBlue { from { color: #000; text-shadow: none; } to { color: #0078d7; text-shadow: 0 0 30px #0078d7; } }
+        /* MENU WYBORU */
+        .selection-box { display: none; flex-direction: column; gap: 15px; margin-top: 30px; align-items: center; }
+        
+        select, input { padding: 10px; width: 250px; background: #222; border: 1px solid #444; color: #fff; font-family: 'Consolas'; }
 
-        /* 3. MENU WYBORU */
-        .menu-btns { margin-top: 40px; display: flex; gap: 20px; opacity: 0; animation: fadeIn 1s forwards 2.5s; }
-        .btn {
-            padding: 15px 40px; background: transparent; border: 2px solid #0078d7;
-            color: #fff; cursor: pointer; font-size: 18px; border-radius: 5px; transition: 0.3s;
+        /* KLASYCZNY PRZYCISK Z ANIMOWANĄ STRZAŁKĄ */
+        .arrow-btn { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px; background: #111; border: 1px solid #ffeb3b; 
+            color: #ffeb3b; font-weight: bold; width: 280px; text-decoration: none;
+            position: relative; overflow: hidden;
         }
-        .btn:hover { background: #0078d7; box-shadow: 0 0 20px #0078d7; }
+        .arrow-btn:hover { background: #ffeb3b; color: #000; }
+        
+        /* TA STRZAŁKA, CO SIĘ RUSZA */
+        .arrow-icon { 
+            font-size: 20px; font-weight: bold; margin-left: 10px;
+            transition: transform 0.3s;
+        }
+        
+        /* ANIMACJA NA HOVER */
+        .arrow-btn:hover .arrow-icon { 
+            animation: arrowMove 0.6s infinite;
+        }
+        
+        @keyframes arrowMove {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
 
-        /* 4. FORMULARZ LOGOWANIA / WYBORU WERSJI */
-        #selection-box {
-            display: none; flex-direction: column; align-items: center; gap: 15px;
-            opacity: 0; animation: fadeIn 0.5s forwards;
-        }
-        input, select {
-            padding: 12px; width: 250px; background: rgba(255,255,255,0.05);
-            border: 1px solid #0078d7; color: #fff; border-radius: 5px; outline: none;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="boot-loader">
         <div class="spinner"></div>
-        <p style="margin-top: 20px; font-family: monospace; opacity: 0.5;">BlueBoard Neural Link...</p>
+        <p style="margin-top: 15px;">Inicjalizacja BlueBoard...</p>
     </div>
 
     <div id="logo-screen">
         <div id="logo-text">BootOS</div>
         
-        <div class="menu-btns" id="main-menu">
-            <button class="btn" onclick="startSelection('format')">DALEJ</button>
-            <button class="btn" onclick="startSelection('login')">ZALOGUJ</button>
+        <div id="initial-btns" style="margin-top: 40px; display: flex; flex-direction: column; gap: 20px;">
+            <a href="#" class="arrow-btn" onclick="showForm('format')">
+                <span>DALEJ (INSTALACJA)</span> <span class="arrow-icon">→</span>
+            </a>
+            <a href="#" class="arrow-btn" onclick="showForm('login')">
+                <span>ZALOGUJ</span> <span class="arrow-icon">→</span>
+            </a>
         </div>
 
-        <div id="selection-box">
+        <div id="selection-box" class="selection-box">
             <h3 id="form-title">Wybierz System</h3>
-            <select id="os-version">
-                <option value="bootos">BootOS (Legacy)</option>
-                <option value="bootix">BootiX17 (NewUI)</option>
+            <select id="os-choice">
+                <option value="bootos">BootOS (Classic Edition)</option>
+                <option value="bootix">BootiX17 (Neural Edition)</option>
             </select>
-            <input type="text" id="username" placeholder="Twoja nazwa">
-            <button class="btn" style="width: 100%" onclick="finalAction()">URUCHOM</button>
+            <input type="text" id="username" placeholder="Podaj nazwę użytkownika">
+            <a href="#" class="arrow-btn" onclick="launch()" style="width:100%; box-sizing:border-box;">
+                <span>URUCHOM</span> <span class="arrow-icon">→</span>
+            </a>
         </div>
     </div>
 
     <script>
-        let currentMode = '';
+        let mode = '';
 
-        // 1. Czekaj 6 sekund na ładowanie
+        // Czekanie 6 sekund
         setTimeout(() => {
             document.getElementById('boot-loader').style.display = 'none';
-            document.getElementById('logo-screen').style.display = 'flex';
+            const screen = document.getElementById('logo-screen');
+            screen.style.display = 'flex';
+            
+            // Sprawdzanie motywu z BIOS
+            const theme = localStorage.getItem('selectedTheme');
+            const isUpdated = localStorage.getItem('isUpdated') === 'true';
+            
+            if(isUpdated && theme === 'gold') {
+                screen.style.background = "radial-gradient(circle, #1a1500 0%, #000 100%)";
+                document.getElementById('logo-text').style.color = "#d4af37";
+                document.getElementById('logo-text').style.textShadow = "0 0 20px #d4af37";
+            } else {
+                screen.style.background = "radial-gradient(circle, #001a33 0%, #000 100%)";
+                document.getElementById('logo-text').style.color = "#0078d7";
+            }
         }, 6000);
 
-        // 2. Obsługa BIOSu (DEL/F2) w trakcie ładowania
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "Delete" || e.key === "F2") {
-                window.location.href = 'bios.html';
-            }
-        });
-
-        // 3. Rozpoczęcie wyboru
-        function startSelection(mode) {
-            currentMode = mode;
-            document.getElementById('main-menu').style.display = 'none';
+        function showForm(m) {
+            mode = m;
+            document.getElementById('initial-btns').style.display = 'none';
             document.getElementById('selection-box').style.display = 'flex';
-            
+            document.getElementById('form-title').innerText = (m === 'format') ? "FORMATUJ I INSTALUJ:" : "ZALOGUJ DO:";
+        }
+
+        function launch() {
+            const os = document.getElementById('os-choice').value;
+            const user = document.getElementById('username').value || "Użytkownik";
+            localStorage.setItem('userName', user);
+
             if(mode === 'format') {
-                document.getElementById('form-title').innerText = "Formatuj i instaluj:";
+                window.location.href = 'bootix17_install.html?os=' + os;
             } else {
-                document.getElementById('form-title').innerText = "Logowanie do systemu:";
+                if(os === 'bootix') window.location.href = 'homedesktop.html';
+                else alert("Trwa wczytywanie plików BootOS Legacy...");
             }
         }
 
-        // 4. Finalna akcja
-        function finalAction() {
-            const os = document.getElementById('os-version').value;
-            const name = document.getElementById('username').value || "Użytkownik";
-            
-            localStorage.setItem('userName', name);
-            
-            if(currentMode === 'format') {
-                window.location.href = 'bootix17_install.html';
-            } else {
-                // Jeśli logowanie, sprawdza czy BootiX czy BootOS
-                if(os === 'bootix') {
-                    window.location.href = 'homedesktop.html';
-                } else {
-                    alert("System BootOS jest obecnie niedostępny (Wymaga aktualizacji BlueBoard)");
-                }
-            }
-        }
+        // Wejście do BIOS
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "Delete" || e.key === "F2") window.location.href = 'bios.html';
+        });
     </script>
 </body>
 </html>
