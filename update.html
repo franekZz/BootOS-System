@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BIOS Flash - Qumix Interface</title>
+    <title>BIOS Flash Utility - Qumix 2.0</title>
     <style>
         body {
             background-color: #000; color: #ccc; font-family: 'Courier New', monospace;
@@ -14,20 +14,21 @@
         
         .btn { background: #999; color: #000; padding: 15px 30px; border: 2px solid #555; cursor: pointer; font-weight: bold; font-family: 'Courier New'; margin: 10px; }
         .btn:hover { background: #fff; border-color: #fff; }
-        .btn:disabled { background: #333; color: #666; cursor: not-allowed; border-color: #222; }
+        .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
         #qumix-modal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; border: 3px solid #ccc; padding: 30px; width: 500px; z-index: 100; box-shadow: 0 0 100px rgba(0,0,0,0.9);
+            background: #111; border: 3px solid #ccc; padding: 30px; width: 500px; z-index: 100; box-shadow: 0 0 100px #000;
         }
         
-        .warning-red { color: #ff0000; font-weight: bold; margin: 20px 0; border: 1px solid red; padding: 15px; background: rgba(255,0,0,0.1); }
+        .warning-red { color: #ff0000; font-weight: bold; margin: 20px 0; border: 2px solid red; padding: 15px; background: rgba(255,0,0,0.1); animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
         
         #progress-area { display: none; width: 80%; margin-top: 20px; }
         .bar-bg { width: 100%; background: #222; border: 1px solid #555; height: 35px; }
-        .bar-fill { width: 0%; background: #00aa00; height: 100%; transition: width 0.1s; }
+        .bar-fill { width: 0%; background: #00aa00; height: 100%; }
 
-        /* RED SCREEN (EASTER EGG) */
+        /* RED SCREEN OF DEATH (EASTER EGG) */
         #rsod {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #aa0000; color: white; flex-direction: column;
@@ -35,71 +36,67 @@
             font-family: sans-serif; text-align: left;
         }
         #rsod h1 { font-size: 150px; margin: 0; }
-        #rsod h2 { font-size: 40px; margin: 20px 0; }
-        #rsod p { font-size: 22px; max-width: 900px; line-height: 1.5; }
-        .btn-white { background: white; color: #aa0000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; margin-top: 30px; font-size: 18px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="header">
-        <span>BayOSPAL Flash Utility v1.4</span>
-        <span>Status: <span id="usb-status" style="color:red">NO FLASH DRIVE</span></span>
+        <span>BayOSPAL BIOS Flash Utility v1.4</span>
+        <span>Status: <span id="usb-status" style="color:red">NO USB DRIVE</span></span>
     </div>
 
     <div id="main">
         <div id="step1">
-            <h1 style="color: #fff; font-size: 40px;">PLEASE INSERT FLASH USB</h1>
-            <p>Ready for BootAdvencherSettings update.</p>
+            <h1 style="color: #fff;">WŁÓŻ FLASH USB</h1>
+            <p>Wymagany obraz BIOS v3.0 z modułem Qumix (TPM 2.0).</p>
             <br>
             <button class="btn" onclick="plugUsb()">Włącz UsbPC Flash</button>
         </div>
 
         <div id="step2" style="display:none">
-            <div class="warning-red">
-                OSTRZEŻENIE: NIE ODŁĄCZAJ SWEGO PC OD PRĄDU!
-            </div>
-            <button class="btn" style="background: #aa0000; color: #fff; padding: 20px 50px; font-size: 20px;" onclick="finalFlash()">Flashuj Bios-Aktualizuj</button>
+            <div class="warning-red">OSTRZEŻENIE: NIE ODŁĄCZAJ SWEGO PC OD PRĄDU!</div>
+            <p>Rozpoczęcie pełnej aktualizacji układu SPI Flash.</p>
+            <button class="btn" style="background: #aa0000; color: #fff;" onclick="finalFlash()">Flashuj Bios-Aktualizuj</button>
         </div>
 
         <div id="progress-area">
-            <h2 id="final-msg" style="color:#0f0">FLASHING QUMIX CORE (TPM 2.0)...</h2>
+            <h2 id="status-msg" style="color:#0f0">PRZYGOTOWANIE DO ZAPISU...</h2>
             <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
-            <p style="color: #444; margin-top: 15px;">DO NOT ESCAPE - Writing to SPI Flash...</p>
+            <p style="color: #444; margin-top: 15px;">NIE WYCHODŹ (ESC ABY PRZERWAĆ)</p>
         </div>
     </div>
 
     <div id="qumix-modal">
         <h2 style="color:#fff">INFORMACJA</h2>
-        <p>Technologia <b style="color:yellow">Qumix (TPM 2.0)</b> zostanie włączona.</p>
-        <p style="font-size: 13px; color: #888;">Jest to wymagane do poprawnego działania nowego systemu operacyjnego oraz zabezpieczenia kluczy RSA.</p>
-        <hr style="border: 0; border-top: 1px solid #333;">
-        <div style="margin: 20px 0; text-align: left;">
+        <p>Aktualizacja BIOS włączy technologię <b style="color:yellow">Qumix</b> (odpowiednik TPM 2.0).</p>
+        <p style="font-size: 13px; color: #888;">Marka BlueOS wymaga tego modułu do instalacji systemu BootiX17.</p>
+        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+        <div style="text-align: left;">
             <input type="checkbox" id="accept-check" onclick="toggleAccept()"> 
-            <label for="accept-check" style="cursor:pointer">Zaakceptuj warunki Qumix i instalację</label>
+            <label for="accept-check" style="cursor:pointer">Zaakceptuj warunki i integrację Qumix</label>
         </div>
+        <br>
         <button class="btn" id="modal-btn" disabled onclick="closeModal()">Kontynuuj</button>
     </div>
 
     <div id="rsod">
         <h1>:(</h1>
         <h2>Zepsuto System BootOS</h2>
-        <p>Twoje dane zostały zniszczone. Przerwanie aktualizacji BIOS (Qumix Flash) spowodowało krytyczne uszkodzenie sektorów rozruchowych i utratę kluczy szyfrujących.</p>
-        <button class="btn-white" onclick="window.location.href='index.html'">Zainstaluj BootOS</button>
-        <div style="margin-top: 50px; font-family: monospace; opacity: 0.6; font-size: 14px;">
-            Kod błędu: EASTER_EGG_BIOS_CORRUPT_QUMIX_FAIL_0x000281
-        </div>
+        <p>Twoje dane zostały zniszczone. Przerwanie flashowania BIOS uszkodziło sumy kontrolne modułu Qumix.</p>
+        <br>
+        <button class="btn" style="background: white; color: #aa0000; border: none;" onclick="window.location.href='index.html'">Zainstaluj BootOS</button>
+        <p style="margin-top: 40px; font-family: monospace; opacity: 0.6;">Error: EASTER_EGG_BIOS_CORRUPT_QUMIX_FAIL</p>
     </div>
 
     <script>
         let isFlashing = false;
 
-        // Prawy przycisk - powrót do BIOS (tylko przed flashem)
+        // Prawy klik - powrót do zakładki BIOS (tylko jeśli nie flashujemy)
         window.addEventListener('mousedown', (e) => {
             if (e.button === 2 && !isFlashing) window.location.href = "bios.html";
         });
 
-        // ESCAPE EASTER EGG
+        // ESCAPE - Easter Egg
         window.addEventListener('keydown', (e) => {
             if (e.key === "Escape" && isFlashing) {
                 isFlashing = false;
@@ -130,14 +127,14 @@
             
             let p = 0;
             const fill = document.getElementById('fill');
-            const statusLabel = document.getElementById('final-msg');
+            const statusLabel = document.getElementById('status-msg');
             
-            const tpmLogs = [
-                "Initializing Qumix 2.0 Hierarchy...",
-                "Generating RSA-2048 Endorsement Key...",
-                "Sealing BootOS Partition Keys...",
-                "PCR Register 0x00 Initialized.",
-                "Qumix Core: Trusted Boot Active."
+            const logs = [
+                "Kasowanie bloków pamięci...",
+                "Wgrywanie mikrokodu Qumix...",
+                "Weryfikacja podpisów BlueOS...",
+                "Aktualizacja tabel ACPI...",
+                "Finalizowanie zmian..."
             ];
 
             const timer = setInterval(() => {
@@ -146,12 +143,14 @@
                 fill.style.width = p + "%";
                 
                 if (p % 20 === 0 && p < 100) {
-                    statusLabel.innerText = tpmLogs[Math.floor(p/20)];
+                    statusLabel.innerText = logs[Math.floor(p/20)];
                 }
 
                 if (p >= 100) {
                     clearInterval(timer);
-                    statusLabel.innerText = "QUMIX (TPM 2.0) INSTALLED SUCCESSFULLY!";
+                    statusLabel.innerText = "AKTUALIZACJA ZAKOŃCZONA!";
+                    // TO JEST KLUCZOWE: Odblokowujemy Qumix w systemie
+                    localStorage.setItem('biosUpdated', 'true'); 
                     setTimeout(() => { window.location.href = "index.html"; }, 2000);
                 }
             }, 80);
