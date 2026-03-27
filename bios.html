@@ -2,28 +2,141 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BlueBoard BIOS Setup</title>
+    <title>BlueBoard Update Utility</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Consolas', monospace; margin: 0; display: flex; height: 100vh; }
-        #sidebar { width: 250px; border-right: 2px solid #333; padding: 20px; background: #050505; }
-        #content-frame { flex: 1; border: none; background: #000; }
-        .nav-btn { display: block; width: 100%; padding: 15px; margin-bottom: 10px; background: #111; color: #fff; border: 1px solid #444; text-align: left; cursor: pointer; }
-        .nav-btn:hover { background: #0078d7; border-color: #00f2ff; }
-        .header-info { padding: 10px; font-size: 12px; color: #00f2ff; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        /* WYMUSZENIE ŻÓŁTEGO KURSORA - KLASYCZNA STRZAŁKA W KOLORZE ŻÓŁTYM */
+        * { 
+            cursor: url('https://cur.cursors-4u.net/others/oth-9/oth814.cur'), default !important; 
+        }
+
+        body { 
+            background: #000; color: #fff; font-family: 'Consolas', monospace; 
+            padding: 30px; margin: 0; overflow: hidden; height: 100vh;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; }
+        h2 { color: #ffeb3b; border-bottom: 2px solid #ffeb3b; padding-bottom: 10px; font-size: 24px; }
+        
+        #usb-waiter { text-align: center; padding: 50px; border: 2px dashed #444; margin-top: 20px; }
+        .usb-btn { 
+            background: #111; border: 1px solid #ffeb3b; color: #ffeb3b; 
+            padding: 10px 20px; font-weight: bold; text-transform: uppercase;
+        }
+        .usb-btn:hover { background: #ffeb3b; color: #000; }
+
+        #update-form { display: none; margin-top: 20px; }
+        .terms-box { 
+            background: #0a0a0a; border: 1px solid #333; padding: 15px; 
+            height: 140px; overflow-y: auto; font-size: 13px; color: #ccc; margin-bottom: 20px;
+        }
+        .gold-info { color: #d4af37; font-weight: bold; }
+        
+        .install-btn { 
+            width: 100%; padding: 15px; background: #222; color: #666; 
+            border: 1px solid #333; font-weight: bold; font-size: 16px;
+        }
+        .install-btn.ready { background: #ffeb3b; color: #000; border-color: #fff; }
+
+        #progress-area { display: none; margin-top: 30px; }
+        .bar-bg { width: 100%; height: 12px; background: #111; border: 1px solid #333; position: relative; }
+        #bar-fill { width: 0%; height: 100%; background: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; transition: 0.1s; }
+
+        /* BLUE SCREEN (BSOD) */
+        #bsod {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0000aa; color: #fff; padding: 60px; box-sizing: border-box; z-index: 9999;
+            font-family: 'Segoe UI', sans-serif;
+        }
     </style>
 </head>
 <body>
-    <div id="sidebar">
-        <div class="header-info">BLUEBOARD BIOS v4.0<br>Owner: Dejw_Devo1</div>
-        <button class="nav-btn" onclick="loadPage('ogolnebios.html')">[F1] Ogólne</button>
-        <button class="nav-btn" onclick="loadPage('personalizacjabios.html')">[F2] Personalizacja</button>
-        <button class="nav-btn" onclick="loadPage('aktualizacjabios.html')">[F3] Aktualizacja</button>
-        <button class="nav-btn" onclick="window.location.href='index.html'" style="margin-top: 50px; color: #ff4444;">[ESC] Wyjdź i Zapisz</button>
-    </div>
-    <iframe id="content-frame" src="ogolnebios.html"></iframe>
 
-    <script>
-        function loadPage(url) { document.getElementById('content-frame').src = url; }
-    </script>
+<div id="bsod">
+    <div style="font-size: 100px;">:(</div>
+    <div style="font-size: 24px; margin: 20px 0;">Napotkano problem i nastąpiło przerwanie aktualizacji BlueBoard.</div>
+    <p>BŁĄD KRYTYCZNY: Użyto klawisza ESC podczas flashowania kości BIOS.</p>
+    <p>Kod błędu: 0x17_FATAL_UPDATE_CANCELLED</p>
+    <p>Status: 17% kompletne. Restartowanie systemu...</p>
+</div>
+
+<div class="container" id="main-content">
+    <h2 id="title">BLUEBOARD UPDATE UTILITY</h2>
+
+    <div id="usb-waiter">
+        <p>System BlueBoard oczekuje na FlashUSB...</p>
+        <button class="usb-btn" onclick="detectUSB()">PODŁĄCZ USB</button>
+    </div>
+
+    <div id="update-form">
+        <p>Wykryto: <span style="color:#ffeb3b">BB_UPDATE_2026_FINAL</span></p>
+        <div class="terms-box">
+            <strong>REGULAMIN I PUNKTY AKTUALIZACJI:</strong><br><br>
+            - Aktulizacja biosu: Nowy złoto czarne tło.<br>
+            - Dostęp do Qumix tylko do płyt BlueBOARD.<br>
+            - <span style="color: #ffeb3b;">Ostrzeżenie:</span> ESC przerywa zapis.
+        </div>
+        
+        <label style="display: block; margin-bottom: 20px; font-weight: bold;">
+            <input type="checkbox" id="agree" onchange="check()"> Akceptuję punkty aktualizacji
+        </label>
+        
+        <button id="btn-start" class="install-btn" onclick="runUpdate()" disabled>ROZPOCZNIJ AKTUALIZACJĘ</button>
+    </div>
+
+    <div id="progress-area">
+        <p id="status">Zapisywanie firmware...</p>
+        <div class="bar-bg"><div id="bar-fill"></div></div>
+    </div>
+</div>
+
+<script>
+    let isUpdating = false;
+
+    function detectUSB() {
+        document.getElementById('usb-waiter').style.display = 'none';
+        document.getElementById('update-form').style.display = 'block';
+    }
+
+    function check() {
+        const b = document.getElementById('btn-start');
+        const c = document.getElementById('agree');
+        b.classList.toggle('ready', c.checked);
+        b.disabled = !c.checked;
+    }
+
+    function runUpdate() {
+        document.getElementById('update-form').style.display = 'none';
+        document.getElementById('progress-area').style.display = 'block';
+        isUpdating = true;
+        let p = 0;
+        const fill = document.getElementById('bar-fill');
+
+        const iv = setInterval(() => {
+            if(!isUpdating) { clearInterval(iv); return; }
+            p += 0.5;
+            fill.style.width = p + "%";
+            
+            if(p >= 100) {
+                clearInterval(iv);
+                localStorage.setItem('isUpdated', 'true');
+                localStorage.removeItem('updateFailed');
+                alert("AKTUALIZACJA BIOSU ZAKOŃCZONA.");
+                window.location.href = 'personalizacjabios.html';
+            }
+        }, 60);
+    }
+
+    // EASTER EGG: ESC -> BLUE SCREEN
+    window.addEventListener('keydown', (e) => {
+        if (e.key === "Escape" && isUpdating) {
+            isUpdating = false;
+            localStorage.setItem('updateFailed', 'true');
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('bsod').style.display = 'block';
+            setTimeout(() => { window.location.href = 'bios.html'; }, 5000);
+        }
+    });
+</script>
+
 </body>
 </html>
