@@ -2,111 +2,141 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootiX17 Home - BlueOS</title>
+    <title>BootiX17 Home - NewUI</title>
     <style>
         body {
             margin: 0; padding: 0;
-            background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-            background-size: cover;
+            /* CZARNE TŁO I NEONOWY NAPIS */
+            background: #000;
+            background-image: 
+                radial-gradient(circle at center, #001529 0%, #000 100%);
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
             user-select: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* PASEK ZADAŃ (NOWOCZESNY - WYŚRODKOWANY) */
+        /* NEONOWY NAPIS NewUI NA ŚRODKU TAPETY */
+        #wallpaper-text {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 
+                0 0 10px #fff,
+                0 0 20px #0078d7,
+                0 0 40px #0078d7,
+                0 0 80px #0078d7;
+            opacity: 0.15; /* Subtelny napis w tle */
+            z-index: 0;
+            pointer-events: none;
+            letter-spacing: 10px;
+        }
+
+        /* PASEK ZADAŃ */
         #taskbar {
-            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: auto; min-width: 400px; height: 50px;
-            background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(15px);
-            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; padding: 0 20px; gap: 15px;
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            min-width: 450px; height: 60px;
+            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(20px);
+            border-radius: 20px; border: 1px solid rgba(0, 120, 215, 0.3);
+            display: flex; align-items: center; justify-content: center; padding: 0 25px; gap: 20px;
             z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .tb-icon { width: 35px; height: 35px; cursor: pointer; transition: 0.2s; }
-        .tb-icon:hover { transform: scale(1.2) translateY(-5px); }
+        /* NOWE IKONY (Styl BlueOS) */
+        .tb-icon { 
+            width: 40px; height: 40px; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 5px rgba(0, 120, 215, 0.5));
+        }
+        .tb-icon:hover { transform: scale(1.2) translateY(-10px); filter: brightness(1.2) drop-shadow(0 0 15px #0078d7); }
 
-        /* OKNO SKLEPU */
+        /* OKNO SKLEPU (Dark Mode) */
         #store-window {
-            display: none; position: absolute; top: 10%; left: 15%; width: 70%; height: 70%;
-            background: #f3f3f3; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-            overflow: hidden; flex-direction: column; z-index: 500;
+            display: none; position: absolute; top: 10%; left: 15%; width: 70%; height: 75%;
+            background: #111; border-radius: 15px; box-shadow: 0 0 50px rgba(0, 120, 215, 0.2);
+            overflow: hidden; flex-direction: column; z-index: 500; border: 1px solid #333;
         }
 
         .window-header {
-            background: #fff; padding: 10px 20px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 1px solid #ddd;
+            background: #1a1a1a; padding: 15px 25px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid #333; color: #fff;
         }
-        .close-btn { color: #888; cursor: pointer; font-weight: bold; font-size: 20px; }
-        .close-btn:hover { color: #ff0000; }
+        .close-btn { color: #555; cursor: pointer; font-size: 24px; transition: 0.2s; }
+        .close-btn:hover { color: #ff4444; }
 
-        .store-content { padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; overflow-y: auto; }
+        .store-content { padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; overflow-y: auto; }
         
         .app-card {
-            background: white; padding: 15px; border-radius: 10px; text-align: center;
-            border: 1px solid #eee; transition: 0.2s; cursor: pointer;
+            background: #1d1d1d; padding: 20px; border-radius: 12px; text-align: center;
+            border: 1px solid #2a2a2a; transition: 0.3s; cursor: pointer;
         }
-        .app-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: translateY(-3px); }
-        .app-card img { width: 60px; height: 60px; margin-bottom: 10px; }
-        .app-card b { display: block; font-size: 14px; color: #333; }
+        .app-card:hover { border-color: #0078d7; background: #252525; transform: translateY(-5px); }
+        .app-card img { width: 64px; height: 64px; margin-bottom: 12px; }
+        .app-card b { display: block; font-size: 15px; color: #fff; margin-bottom: 10px; }
         .install-btn { 
-            margin-top: 10px; background: #0078d7; color: white; border: none; 
-            padding: 5px 15px; border-radius: 5px; font-size: 12px; cursor: pointer;
+            background: #0078d7; color: white; border: none; padding: 8px 20px; 
+            border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold;
         }
 
         /* IKONY NA PULPICIE */
-        .desktop-icons { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-        .d-icon { width: 70px; text-align: center; color: white; cursor: pointer; text-shadow: 1px 1px 3px #000; }
-        .d-icon img { width: 50px; display: block; margin: 0 auto 5px; }
-        .d-icon span { font-size: 12px; }
+        .desktop-icons { padding: 40px; display: flex; flex-direction: column; gap: 30px; z-index: 10; position: relative; }
+        .d-icon { width: 80px; text-align: center; color: #fff; cursor: pointer; }
+        .d-icon img { width: 55px; display: block; margin: 0 auto 8px; transition: 0.2s; }
+        .d-icon:hover img { filter: drop-shadow(0 0 10px #0078d7); }
+        .d-icon span { font-size: 12px; font-weight: 500; }
     </style>
 </head>
 <body>
 
+    <div id="wallpaper-text">NewUI</div>
+
     <div class="desktop-icons">
-        <div class="d-icon" ondblclick="alert('Folder jest pusty.')">
-            <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
-            <span>Moje Pliki</span>
-        </div>
         <div class="d-icon" ondblclick="openStore()">
-            <img src="https://cdn-icons-png.flaticon.com/512/888/888846.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png">
             <span>MicraBlue Store</span>
+        </div>
+        <div class="d-icon" ondblclick="alert('Puste.')">
+            <img src="https://cdn-icons-png.flaticon.com/512/10313/10313106.png">
+            <span>Pliki</span>
         </div>
     </div>
 
     <div id="store-window">
         <div class="window-header">
-            <b style="color: #0078d7;">MicraBlue Store</b>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png" width="20">
+                <b style="letter-spacing: 1px;">MICRABLUE STORE</b>
+            </div>
             <span class="close-btn" onclick="closeStore()">×</span>
         </div>
         <div class="store-content">
             <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968263.png">
-                <b>BlueWord</b>
-                <button class="install-btn" onclick="installApp('BlueWord')">Zainstaluj</button>
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968533.png">
+                <b>BlueCode Editor</b>
+                <button class="install-btn">Pobierz</button>
             </div>
             <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png">
-                <b>Mail App</b>
-                <button class="install-btn" onclick="installApp('Mail App')">Zainstaluj</button>
+                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png">
+                <b>BlueSocial</b>
+                <button class="install-btn">Pobierz</button>
             </div>
             <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081261.png">
-                <b>Super Game XP</b>
-                <button class="install-btn" onclick="installApp('Super Game XP')">Zainstaluj</button>
-            </div>
-            <div class="app-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/174/174883.png">
-                <b>BlueTube</b>
-                <button class="install-btn" onclick="installApp('BlueTube')">Zainstaluj</button>
+                <img src="https://cdn-icons-png.flaticon.com/512/3041/3041913.png">
+                <b>Neon Racer</b>
+                <button class="install-btn">Graj</button>
             </div>
         </div>
     </div>
 
     <div id="taskbar">
-        <img src="https://cdn-icons-png.flaticon.com/512/888/888880.png" class="tb-icon" title="Start">
-        <img src="https://cdn-icons-png.flaticon.com/512/888/888846.png" class="tb-icon" onclick="openStore()" title="Store">
-        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" class="tb-icon" title="Settings">
+        <img src="https://cdn-icons-png.flaticon.com/512/6213/6213131.png" class="tb-icon" title="Menu Start">
+        <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png" class="tb-icon" onclick="openStore()" title="MicraBlue Store">
+        <img src="https://cdn-icons-png.flaticon.com/512/3953/3953226.png" class="tb-icon" title="Panel Sterowania">
     </div>
 
     <script>
@@ -116,12 +146,8 @@
         function closeStore() {
             document.getElementById('store-window').style.display = 'none';
         }
-        function installApp(appName) {
-            alert("Instalowanie " + appName + "... Gotowe! Ikona pojawi się na pulpicie (symulacja).");
-            // Tutaj w przyszłości możemy dodać kod dodający ikonę na pulpit
-        }
-
-        // Blokada prawego przycisku dla realizmu
+        
+        // Wyłączenie menu pod prawym przyciskiem
         window.oncontextmenu = (e) => e.preventDefault();
     </script>
 </body>
