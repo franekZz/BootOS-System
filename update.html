@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BIOS Flash Utility</title>
+    <style>
+        body {
+            background-color: #000; color: #ccc;
+            font-family: 'Courier New', monospace;
+            margin: 0; padding: 0; user-select: none; overflow: hidden;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M0,0 L0,22 L6,16 L11,26 L15,24 L10,14 L18,14 Z" fill="yellow" stroke="black" stroke-width="2"/></svg>'), auto;
+        }
+        #header { background: #ccc; color: #000; padding: 2px 20px; font-weight: bold; display: flex; justify-content: space-between; }
+        #nav { display: flex; background: #333; padding: 0 20px; gap: 5px; }
+        .nav-tab { padding: 5px 20px; background: #999; color: #000; font-weight: bold; cursor: pointer; }
+        .active { background: #ccc; }
 
+        #main { height: calc(100vh - 80px); border: 1px solid #444; margin: 10px; padding: 40px; }
+        
+        .warning-box { border: 2px solid red; color: red; padding: 20px; margin-bottom: 30px; text-align: center; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .info-table td { padding: 5px; border: 1px solid #333; }
+
+        #progress-area { display: none; margin-top: 20px; }
+        .bar-bg { width: 100%; background: #111; border: 1px solid #555; height: 30px; position: relative; }
+        .bar-fill { width: 0%; background: #00aa00; height: 100%; }
+        #status-text { margin-top: 10px; color: #aaa; }
+
+        .btn-flash { background: #aa0000; color: #fff; padding: 15px 40px; border: none; cursor: pointer; font-family: 'Courier New'; font-weight: bold; display: block; margin: 0 auto; }
+        .btn-flash:hover { background: red; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="header">
+        <span>BayOSPAL Flash Utility v1.4</span>
+        <span>Mode: SPI Flash</span>
+    </div>
+
+    <div id="nav">
+        <div class="nav-tab" onclick="window.location.href='bios.html'">Accessibility</div>
+        <div class="nav-tab active">Update BIOS</div>
+    </div>
+
+    <div id="main">
+        <div class="warning-box">
+            WARNING: DO NOT POWER OFF OR REBOOT DURING BIOS UPDATE!
+        </div>
+
+        <table class="info-table">
+            <tr><td>Current BIOS:</td><td>BayOSPAL v2.15 (2025-10-12)</td></tr>
+            <tr><td>New BIOS:</td><td>BayOSPAL v3.01 (2026-03-27)</td></tr>
+            <tr><td>ROM Size:</td><td>16384 KB</td></tr>
+            <tr><td>Status:</td><td id="status-cell" style="color:yellow">Ready to Flash</td></tr>
+        </table>
+
+        <button class="btn-flash" id="start-btn" onclick="startFlash()">START BIOS UPDATE</button>
+
+        <div id="progress-area">
+            <div class="bar-bg"><div class="bar-fill" id="bar"></div></div>
+            <p id="status-text">Checking ROM integrity...</p>
+        </div>
+    </div>
+
+    <script>
+        // Prawy klik - powrót do BIOSu
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 2) window.location.href = "bios.html";
+        });
+
+        function startFlash() {
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('progress-area').style.display = 'block';
+            document.getElementById('status-cell').innerText = "Flashing...";
+            
+            let p = 0;
+            const bar = document.getElementById('bar');
+            const status = document.getElementById('status-text');
+            const log = [
+                "Erasing blocks...",
+                "Writing new firmware...",
+                "Verifying checksum...",
+                "Updating bootloader..."
+            ];
+
+            const timer = setInterval(() => {
+                p += 1;
+                
+                if (p < 30) status.innerText = log[0] + " " + p + "%";
+                else if (p < 80) status.innerText = log[1] + " " + p + "%";
+                else if (p < 95) status.innerText = log[2] + " " + p + "%";
+                else status.innerText = log[3] + " " + p + "%";
+
+                if (p >= 100) {
+                    p = 100;
+                    clearInterval(timer);
+                    status.innerText = "FLASH COMPLETE. REBOOTING...";
+                    setTimeout(() => { window.location.href = "index.html"; }, 2000);
+                }
+                
+                bar.style.width = p + "%";
+            }, 150);
+        }
+    </script>
+</body>
+</html>
