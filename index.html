@@ -2,39 +2,87 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Start</title>
+    <title>BootOS - Rozruch</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: black; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; transition: background-color 3s ease-in-out; }
-        #post-screen { display: block; width: 80%; font-family: 'Courier New', monospace; font-size: 20px; }
-        #boot-layer { display: none; flex-direction: column; align-items: center; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: black; color: white;
+            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            transition: background-color 3s ease-in-out;
+        }
+
+        /* BIOS POST SCREEN */
+        #post-screen {
+            display: block; width: 80%;
+            font-family: 'Courier New', monospace; font-size: 20px;
+        }
+
+        /* EKRAN LOGO */
+        #boot-layer {
+            display: none; flex-direction: column; align-items: center;
+        }
+
         #boot-text { font-size: 100px; font-weight: bold; margin-bottom: 40px; }
-        #arrow-wrapper { display: none; opacity: 0; transition: opacity 1.5s ease-in; }
-        .circle-btn { width: 110px; height: 110px; background-color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.2s; }
+
+        /* PRZYCISK STARTU */
+        #arrow-wrapper {
+            display: none; opacity: 0; transition: opacity 1.5s ease-in;
+        }
+
+        .circle-btn {
+            width: 110px; height: 110px; background-color: white;
+            border-radius: 50%; display: flex; justify-content: center;
+            align-items: center; cursor: pointer; transition: transform 0.2s;
+        }
+
         .arrow-icon { color: #0000CD; font-size: 60px; }
         .circle-btn:hover { animation: moveSide 0.6s infinite alternate ease-in-out; }
         @keyframes moveSide { from { transform: translateX(-20px); } to { transform: translateX(20px); } }
     </style>
 </head>
 <body>
+
     <div id="post-screen">
         <p>Mainboard: <span style="color: #5555ff;">BayOSPAL</span> Rev 1.0</p>
         <p>Memory Test: 16384MB OK</p>
         <p style="margin-top: 50px;">Press <b style="background: white; color: black; padding: 0 5px;">DEL</b> to enter Setup</p>
     </div>
+
     <div id="boot-layer">
         <div id="boot-text">BootOS</div>
-        <div id="arrow-wrapper" onclick="window.location.href='config_theme.html'">
-            <div class="circle-btn"><span class="arrow-icon">➔</span></div>
+        <div id="arrow-wrapper" onclick="startSetup()">
+            <div class="circle-btn">
+                <span class="arrow-icon">➔</span>
+            </div>
         </div>
     </div>
+
     <script>
-        setTimeout(() => { document.getElementById('post-screen').style.display = 'none'; document.getElementById('boot-layer').style.display = 'flex'; }, 3000);
-        setTimeout(() => { document.body.style.backgroundColor = "#0000CD"; }, 4000);
-        setTimeout(() => { 
-            const aw = document.getElementById('arrow-wrapper');
-            aw.style.display = 'block'; 
-            setTimeout(() => { aw.style.opacity = "1"; }, 50);
+        const post = document.getElementById('post-screen');
+        const bootLayer = document.getElementById('boot-layer');
+        const arrowWrapper = document.getElementById('arrow-wrapper');
+
+        // Sekwencja startowa
+        setTimeout(() => {
+            post.style.display = 'none';
+            bootLayer.style.display = 'flex';
+        }, 3000);
+
+        setTimeout(() => {
+            document.body.style.backgroundColor = "#0000CD";
+        }, 4000);
+
+        setTimeout(() => {
+            arrowWrapper.style.display = 'block';
+            setTimeout(() => { arrowWrapper.style.opacity = "1"; }, 50);
         }, 6000);
+
+        // --- TO JEST NAJWAŻNIEJSZA ZMIANA ---
+        function startSetup() {
+            // Teraz kierujemy do bios.html zamiast do konfiguracji motywu
+            window.location.href = "bios.html";
+        }
     </script>
 </body>
 </html>
