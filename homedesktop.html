@@ -2,10 +2,9 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootiX17 - NewUI Desktop</title>
+    <title>BootiX17 Home - NewUI</title>
     <style>
-        :root { --accent: #0078d7; --glow: 0 0 20px #0078d7; }
-        /* STYL DLA ZHAKOWANEGO SYSTEMU */
+        :root { --accent: #0078d7; --glow: 0 0 20px #0078d7; --pytonia: #4cc9f0; }
         .hacked-mode { --accent: #ff0000 !important; --glow: 0 0 25px #ff0000 !important; }
 
         body { 
@@ -13,7 +12,7 @@
             overflow: hidden; height: 100vh; transition: 0.5s;
         }
 
-        /* NEONOWY NAPIS W TLE */
+        /* TAPETA NewUI */
         #wallpaper-text {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 120px; font-weight: 900; opacity: 0.15; z-index: 0;
@@ -25,7 +24,21 @@
         .d-icon { width: 90px; text-align: center; cursor: pointer; transition: 0.2s; }
         .d-icon img { width: 55px; display: block; margin: 0 auto 8px; filter: drop-shadow(var(--glow)); }
         .d-icon span { font-size: 12px; text-shadow: 1px 1px 2px #000; }
-        .d-icon:hover { transform: scale(1.1); }
+
+        /* OKNA SYSTEMOWE */
+        .window {
+            display: none; position: absolute; top: 100px; left: 200px; width: 600px; height: 400px;
+            background: rgba(10, 10, 10, 0.95); border: 1px solid var(--accent); border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); z-index: 500; flex-direction: column; overflow: hidden;
+        }
+        .win-header { background: rgba(255,255,255,0.05); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .win-content { padding: 20px; flex: 1; overflow-y: auto; }
+        .close-win { cursor: pointer; color: #666; font-size: 20px; }
+        .close-win:hover { color: #ff4444; }
+
+        /* EFEKTY WIRUSA */
+        .glitch { animation: shake 0.2s infinite; }
+        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
 
         /* PASEK ZADAŃ */
         #taskbar {
@@ -34,75 +47,107 @@
             backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid var(--accent);
             display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 1000;
         }
-        .tb-icon { width: 40px; height: 40px; cursor: pointer; transition: 0.3s; filter: drop-shadow(var(--glow)); }
-        .tb-icon:hover { transform: scale(1.2) translateY(-10px); }
+        .tb-icon { width: 40px; cursor: pointer; transition: 0.3s; filter: drop-shadow(var(--glow)); }
 
-        /* ETYKIETA WERSJI */
-        #version-info { position: fixed; top: 15px; right: 20px; color: var(--accent); font-weight: bold; font-size: 12px; opacity: 0.6; }
-        
-        /* EFEKT GLITCH (DLA WIRUSA) */
-        .glitch { animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px, -2px); } 75% { transform: translate(-2px, 2px); } 100% { transform: translate(0); } }
+        /* PLIKI */
+        .file-item { display: inline-block; width: 100px; text-align: center; margin: 10px; cursor: pointer; }
+        .file-item img { width: 45px; }
+        .virus-text { color: #ff4444; font-weight: bold; }
     </style>
 </head>
-<body id="desktop-body">
+<body id="main-body">
 
     <div id="wallpaper-text">NewUI</div>
-    <div id="version-info">BOOTIX17</div>
 
     <div class="desktop-icons">
-        <div class="d-icon" ondblclick="window.location.href='myfiles.html'">
+        <div class="d-icon" ondblclick="openWin('files-win')">
             <img src="https://cdn-icons-png.flaticon.com/512/10313/10313106.png">
             <span>Moje Pliki</span>
         </div>
-
-        <div id="store-icon" class="d-icon" ondblclick="window.location.href='micrablue_store.html'" style="display:none;">
+        <div class="d-icon" ondblclick="openWin('store-win')">
             <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png">
             <span>Store</span>
         </div>
-
         <div class="d-icon" ondblclick="window.location.href='settingsnew.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3953/3953226.png">
             <span>Ustawienia</span>
         </div>
     </div>
 
+    <div id="files-win" class="window">
+        <div class="win-header"><span>Eksplorator - Q:\System\Programy\</span><span class="close-win" onclick="closeWin('files-win')">×</span></div>
+        <div class="win-content">
+            <div class="file-item" onclick="startPytonia()">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968350.png">
+                <br><span style="color:var(--pytonia)">Pytonia.blue</span>
+            </div>
+            <div class="file-item" onclick="tryVirus()">
+                <img src="https://cdn-icons-png.flaticon.com/512/9068/9068695.png">
+                <br><span class="virus-text">wirus.blueq</span>
+            </div>
+            <div class="file-item" onclick="alert('Błąd: To plik Windows (.exe). BootiX go nie wspiera.')">
+                <img src="https://cdn-icons-png.flaticon.com/512/9068/9068678.png">
+                <br><span>Wirus.exe</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="pytonia-win" class="window" style="width:400px; height:250px; background:#000; border-color:var(--pytonia); left:400px;">
+        <div class="win-header"><span style="color:var(--pytonia)">Pytonia v1.0.2</span><span class="close-win" onclick="closeWin('pytonia-win')">×</span></div>
+        <div id="py-out" class="win-content" style="font-family:monospace; font-size:12px; color:var(--pytonia)">
+            > System gotowy.
+        </div>
+    </div>
+
+    <div id="store-win" class="window">
+        <div class="win-header"><span>MicraBlue Store</span><span class="close-win" onclick="closeWin('store-win')">×</span></div>
+        <div class="win-content">
+            <p>Zainstaluj aplikacje dla NewUI Home:</p>
+            <button onclick="alert('Zainstalowano BlueMail')">BlueMail</button>
+            <button onclick="alert('Zainstalowano Neon Browser')">Neon Browser</button>
+        </div>
+    </div>
+
     <div id="taskbar">
-        <img src="https://cdn-icons-png.flaticon.com/512/6213/6213131.png" class="tb-icon" title="Menu Start">
-        <img src="https://cdn-icons-png.flaticon.com/512/10313/10313106.png" class="tb-icon" onclick="window.location.href='myfiles.html'">
-        <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png" class="tb-icon" id="tb-store" onclick="window.location.href='micrablue_store.html'" style="display:none;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3953/3953226.png" class="tb-icon" onclick="window.location.href='settingsnew.html'">
+        <img src="https://cdn-icons-png.flaticon.com/512/6213/6213131.png" class="tb-icon" onclick="alert('Menu Start NewUI')">
+        <img src="https://cdn-icons-png.flaticon.com/512/10313/10313106.png" class="tb-icon" onclick="openWin('files-win')">
+        <img src="https://cdn-icons-png.flaticon.com/512/9376/9376171.png" class="tb-icon" onclick="openWin('store-win')">
     </div>
 
     <script>
-        function initDesktop() {
-            // 1. Sprawdzamy wersję i stan hacku
-            const version = localStorage.getItem('installedVersion') || "Home";
-            const isHacked = localStorage.getItem('systemHacked') === 'true';
+        let pyActive = false;
 
-            // 2. Ustawiamy tekst wersji
-            document.getElementById('version-info').innerText = "BOOTIX17 " + version.toUpperCase();
+        function openWin(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeWin(id) { document.getElementById(id).style.display = 'none'; }
 
-            // 3. Jeśli wersja to NIE Lite, pokaż sklep
-            if (version !== "Lite") {
-                document.getElementById('store-icon').style.display = "block";
-                document.getElementById('tb-store').style.display = "block";
-            }
+        function startPytonia() {
+            pyActive = true;
+            openWin('pytonia-win');
+            document.getElementById('py-out').innerHTML += "<br>> Interpreter załadowany. Czekam na .blueq";
+        }
 
-            // 4. Jeśli zhakowany - zmień kolory na czerwone
-            if (isHacked) {
-                document.body.classList.add('hacked-mode');
-                document.getElementById('wallpaper-text').innerText = "SYSTEM HACKED";
-                // Dodajemy efekt glitch do ikon
-                document.querySelectorAll('.d-icon').forEach(icon => icon.classList.add('glitch'));
+        function tryVirus() {
+            if(!pyActive) {
+                alert("Błąd: Nie można uruchomić .blueq bez Pytonia.blue!");
+            } else {
+                document.getElementById('py-out').innerHTML += "<br><span style='color:red'>> EXECUTING WIRUS.BLUEQ...</span>";
+                setTimeout(() => {
+                    localStorage.setItem('systemHacked', 'true');
+                    applyHack();
+                }, 1500);
             }
         }
 
-        // Blokada prawego przycisku
-        window.oncontextmenu = (e) => e.preventDefault();
+        function applyHack() {
+            document.body.classList.add('hacked-mode');
+            document.getElementById('wallpaper-text').innerText = "SYSTEM HACKED";
+            document.querySelectorAll('.d-icon').forEach(i => i.classList.add('glitch'));
+            alert("SYSTEM ZHAKOWANY. REJESTR QUMIX USZKODZONY.");
+        }
 
-        // Start pulpitu
-        initDesktop();
+        // Sprawdzanie stanu przy starcie
+        if(localStorage.getItem('systemHacked') === 'true') applyHack();
+        localStorage.setItem('installedVersion', 'Home');
     </script>
 </body>
 </html>
