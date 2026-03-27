@@ -2,87 +2,82 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Rozruch</title>
+    <title>BootOS - Startup</title>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: black; color: white;
-            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+            font-family: 'Courier New', monospace; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            transition: background-color 3s ease-in-out;
         }
 
-        /* BIOS POST SCREEN */
+        /* CZARNY EKRAN STARTOWY */
         #post-screen {
-            display: block; width: 80%;
-            font-family: 'Courier New', monospace; font-size: 20px;
+            display: block; width: 85%; font-size: 20px; line-height: 1.5;
         }
 
-        /* EKRAN LOGO */
+        /* NIEBIESKI EKRAN LOGO (UKRYTY NA START) */
         #boot-layer {
             display: none; flex-direction: column; align-items: center;
+            font-family: 'Segoe UI', sans-serif;
         }
-
+        
         #boot-text { font-size: 100px; font-weight: bold; margin-bottom: 40px; }
 
-        /* PRZYCISK STARTU */
-        #arrow-wrapper {
-            display: none; opacity: 0; transition: opacity 1.5s ease-in;
-        }
-
         .circle-btn {
-            width: 110px; height: 110px; background-color: white;
+            width: 100px; height: 100px; background-color: white;
             border-radius: 50%; display: flex; justify-content: center;
-            align-items: center; cursor: pointer; transition: transform 0.2s;
+            align-items: center; cursor: pointer;
         }
+        .arrow-icon { color: #0000CD; font-size: 50px; }
 
-        .arrow-icon { color: #0000CD; font-size: 60px; }
-        .circle-btn:hover { animation: moveSide 0.6s infinite alternate ease-in-out; }
-        @keyframes moveSide { from { transform: translateX(-20px); } to { transform: translateX(20px); } }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div id="post-screen">
-        <p>Mainboard: <span style="color: #5555ff;">BayOSPAL</span> Rev 1.0</p>
-        <p>Memory Test: 16384MB OK</p>
-        <p style="margin-top: 50px;">Press <b style="background: white; color: black; padding: 0 5px;">DEL</b> to enter Setup</p>
+        <p>BayOSPAL BIOS v1.0.42</p>
+        <p>Copyright (C) 2026, BayOSPAL Corp.</p>
+        <br>
+        <p>Main Processor : Intel(R) Core(TM) i7-13700K</p>
+        <p>Memory Test : 16384MB OK</p>
+        <br>
+        <p>Detecting Storage Devices...</p>
+        <p>SATA Port 0 : SSD 512GB (BootOS Drive)</p>
+        <br><br>
+        <p class="blink">Press <span style="background:white; color:black; padding:0 5px;">DEL</span> or <span style="background:white; color:black; padding:0 5px;">F1</span> to enter Setup</p>
     </div>
 
     <div id="boot-layer">
         <div id="boot-text">BootOS</div>
-        <div id="arrow-wrapper" onclick="startSetup()">
-            <div class="circle-btn">
-                <span class="arrow-icon">➔</span>
-            </div>
+        <div class="circle-btn" onclick="window.location.href='config_theme.html'">
+            <span class="arrow-icon">➔</span>
         </div>
     </div>
 
     <script>
-        const post = document.getElementById('post-screen');
-        const bootLayer = document.getElementById('boot-layer');
-        const arrowWrapper = document.getElementById('arrow-wrapper');
-
-        // Sekwencja startowa
-        setTimeout(() => {
-            post.style.display = 'none';
-            bootLayer.style.display = 'flex';
-        }, 3000);
-
-        setTimeout(() => {
-            document.body.style.backgroundColor = "#0000CD";
-        }, 4000);
-
-        setTimeout(() => {
-            arrowWrapper.style.display = 'block';
-            setTimeout(() => { arrowWrapper.style.opacity = "1"; }, 50);
-        }, 6000);
-
-        // --- TO JEST NAJWAŻNIEJSZA ZMIANA ---
-        function startSetup() {
-            // Teraz kierujemy do bios.html zamiast do konfiguracji motywu
+        // FUNKCJA WEJŚCIA DO BIOSU
+        function enterBios() {
             window.location.href = "bios.html";
         }
+
+        // NASŁUCHIWANIE KLAWISZY (DEL i F1)
+        window.addEventListener('keydown', function(e) {
+            // Delete = 'Delete', F1 = 'F1'
+            if (e.key === 'Delete' || e.key === 'F1') {
+                enterBios();
+            }
+        });
+
+        // JEŚLI UŻYTKOWNIK NIC NIE KLIKNIE PRZEZ 4 SEKUNDY:
+        setTimeout(() => {
+            // Przejdź do normalnego ładowania systemu
+            document.getElementById('post-screen').style.display = 'none';
+            document.body.style.backgroundColor = "#0000CD";
+            document.getElementById('boot-layer').style.display = 'flex';
+        }, 4000);
     </script>
 </body>
 </html>
