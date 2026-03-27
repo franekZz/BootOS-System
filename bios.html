@@ -11,32 +11,21 @@
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M0,0 L0,22 L6,16 L11,26 L15,24 L10,14 L18,14 Z" fill="yellow" stroke="black" stroke-width="2"/></svg>'), auto;
         }
         #header { background: #ccc; color: #000; padding: 2px 20px; font-weight: bold; display: flex; justify-content: space-between; }
-        #nav { display: flex; background: #333; padding: 0 20px; }
-        .nav-tab { padding: 5px 20px; background: #ccc; color: #000; font-weight: bold; }
-        #main { display: flex; height: calc(100vh - 80px); border: 1px solid #444; margin: 10px; position: relative; }
+        
+        /* PASEK ZAKŁADEK - Teraz są dwie */
+        #nav { display: flex; background: #333; padding: 0 20px; gap: 5px; }
+        .nav-tab { padding: 5px 20px; background: #999; color: #000; font-weight: bold; cursor: pointer; }
+        .active { background: #ccc; }
+
+        #main { display: flex; height: calc(100vh - 80px); border: 1px solid #444; margin: 10px; }
         #left { flex: 2; padding: 20px; border-right: 1px solid #444; }
         #right { flex: 1; padding: 20px; color: #00aa00; font-size: 13px; }
         
-        .opt { padding: 8px 10px; display: flex; justify-content: space-between; width: 90%; cursor: pointer; border: 1px solid transparent; }
-        .opt:hover { border: 1px solid #fff; background: #111; }
-        
-        /* Styl dla High Contrast */
-        .high-contrast { color: #fff !important; background: #000 !important; font-weight: bold; }
-        .high-contrast .opt { color: #0f0 !important; }
+        .opt { padding: 8px 10px; display: flex; justify-content: space-between; width: 90%; cursor: pointer; }
+        .opt:hover { background: #222; color: #fff; }
 
         .bar-bg { width: 100%; background: #222; border: 1px solid #444; height: 12px; margin-top: 10px; }
         .bar-fill { width: 25%; background: #00aa00; height: 100%; }
-
-        /* Lupa (Magnifier) */
-        #magnifier-glass {
-            display: none; position: absolute;
-            width: 150px; height: 150px;
-            border: 4px solid yellow; border-radius: 50%;
-            pointer-events: none; transform: translate(-50%, -50%);
-            box-shadow: 0 0 50px rgba(255,255,0,0.3);
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(2px) scale(1.5);
-            z-index: 1000;
-        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -46,27 +35,21 @@
         <span>v2.15</span>
     </div>
 
-    <div id="nav"><div class="nav-tab">Accessibility</div></div>
+    <div id="nav">
+        <div class="nav-tab active">Accessibility</div>
+        <div class="nav-tab" onclick="window.location.href='update.html'">Update</div>
+    </div>
 
     <div id="main">
-        <div id="magnifier-glass"></div>
-
         <div id="left">
-            <h4 style="color:#fff">Settings</h4>
+            <h4 style="color:#fff">Accessibility Settings</h4>
             <hr border="0" style="border-top:1px solid #444">
             <br>
-            
             <div class="opt" onclick="window.location.href='bluescreenpoaktulizacjibiosprzywracaniesystemu.html'">
                 <span>Skip Instalacion</span><span>[RUN]</span>
             </div>
-
-            <div class="opt" onclick="toggleContrast()">
-                <span>High Contrast</span><span id="st-contrast">[DISABLED]</span>
-            </div>
-
-            <div class="opt" onclick="toggleMagnifier()">
-                <span>Magnifier Tool</span><span id="st-lupa">[DISABLED]</span>
-            </div>
+            <div class="opt"><span>High Contrast</span><span>[DISABLED]</span></div>
+            <div class="opt"><span>Magnifier Tool</span><span>[DISABLED]</span></div>
         </div>
 
         <div id="right">
@@ -79,34 +62,10 @@
     </div>
 
     <script>
-        // Prawy przycisk - wstecz
+        // Prawy przycisk - powrót do index
         window.addEventListener('mousedown', (e) => {
             if (e.button === 2) window.location.href = "index.html";
         });
-
-        // Obsługa Lupy
-        let lupaActive = false;
-        const glass = document.getElementById('magnifier-glass');
-
-        function toggleMagnifier() {
-            lupaActive = !lupaActive;
-            glass.style.display = lupaActive ? 'block' : 'none';
-            document.getElementById('st-lupa').innerText = lupaActive ? '[ENABLED]' : '[DISABLED]';
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            if(lupaActive) {
-                glass.style.left = e.clientX + 'px';
-                glass.style.top = e.clientY + 'px';
-            }
-        });
-
-        // Obsługa Kontrastu
-        function toggleContrast() {
-            document.body.classList.toggle('high-contrast');
-            const isActive = document.body.classList.contains('high-contrast');
-            document.getElementById('st-contrast').innerText = isActive ? '[ENABLED]' : '[DISABLED]';
-        }
     </script>
 </body>
 </html>
