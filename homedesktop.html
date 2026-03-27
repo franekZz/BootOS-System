@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BootiX17 Home - BlueOS</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* PASEK ZADAŃ (NOWOCZESNY - WYŚRODKOWANY) */
+        #taskbar {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: auto; min-width: 400px; height: 50px;
+            background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(15px);
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; padding: 0 20px; gap: 15px;
+            z-index: 1000;
+        }
+
+        .tb-icon { width: 35px; height: 35px; cursor: pointer; transition: 0.2s; }
+        .tb-icon:hover { transform: scale(1.2) translateY(-5px); }
+
+        /* OKNO SKLEPU */
+        #store-window {
+            display: none; position: absolute; top: 10%; left: 15%; width: 70%; height: 70%;
+            background: #f3f3f3; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden; flex-direction: column; z-index: 500;
+        }
+
+        .window-header {
+            background: #fff; padding: 10px 20px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid #ddd;
+        }
+        .close-btn { color: #888; cursor: pointer; font-weight: bold; font-size: 20px; }
+        .close-btn:hover { color: #ff0000; }
+
+        .store-content { padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; overflow-y: auto; }
+        
+        .app-card {
+            background: white; padding: 15px; border-radius: 10px; text-align: center;
+            border: 1px solid #eee; transition: 0.2s; cursor: pointer;
+        }
+        .app-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: translateY(-3px); }
+        .app-card img { width: 60px; height: 60px; margin-bottom: 10px; }
+        .app-card b { display: block; font-size: 14px; color: #333; }
+        .install-btn { 
+            margin-top: 10px; background: #0078d7; color: white; border: none; 
+            padding: 5px 15px; border-radius: 5px; font-size: 12px; cursor: pointer;
+        }
+
+        /* IKONY NA PULPICIE */
+        .desktop-icons { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+        .d-icon { width: 70px; text-align: center; color: white; cursor: pointer; text-shadow: 1px 1px 3px #000; }
+        .d-icon img { width: 50px; display: block; margin: 0 auto 5px; }
+        .d-icon span { font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="desktop-icons">
+        <div class="d-icon" ondblclick="alert('Folder jest pusty.')">
+            <img src="https://cdn-icons-png.flaticon.com/512/716/716784.png">
+            <span>Moje Pliki</span>
+        </div>
+        <div class="d-icon" ondblclick="openStore()">
+            <img src="https://cdn-icons-png.flaticon.com/512/888/888846.png">
+            <span>MicraBlue Store</span>
+        </div>
+    </div>
+
+    <div id="store-window">
+        <div class="window-header">
+            <b style="color: #0078d7;">MicraBlue Store</b>
+            <span class="close-btn" onclick="closeStore()">×</span>
+        </div>
+        <div class="store-content">
+            <div class="app-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968263.png">
+                <b>BlueWord</b>
+                <button class="install-btn" onclick="installApp('BlueWord')">Zainstaluj</button>
+            </div>
+            <div class="app-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png">
+                <b>Mail App</b>
+                <button class="install-btn" onclick="installApp('Mail App')">Zainstaluj</button>
+            </div>
+            <div class="app-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081261.png">
+                <b>Super Game XP</b>
+                <button class="install-btn" onclick="installApp('Super Game XP')">Zainstaluj</button>
+            </div>
+            <div class="app-card">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174883.png">
+                <b>BlueTube</b>
+                <button class="install-btn" onclick="installApp('BlueTube')">Zainstaluj</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <img src="https://cdn-icons-png.flaticon.com/512/888/888880.png" class="tb-icon" title="Start">
+        <img src="https://cdn-icons-png.flaticon.com/512/888/888846.png" class="tb-icon" onclick="openStore()" title="Store">
+        <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" class="tb-icon" title="Settings">
+    </div>
+
+    <script>
+        function openStore() {
+            document.getElementById('store-window').style.display = 'flex';
+        }
+        function closeStore() {
+            document.getElementById('store-window').style.display = 'none';
+        }
+        function installApp(appName) {
+            alert("Instalowanie " + appName + "... Gotowe! Ikona pojawi się na pulpicie (symulacja).");
+            // Tutaj w przyszłości możemy dodać kod dodający ikonę na pulpit
+        }
+
+        // Blokada prawego przycisku dla realizmu
+        window.oncontextmenu = (e) => e.preventDefault();
+    </script>
+</body>
+</html>
