@@ -9,48 +9,60 @@
             margin: 0; padding: 0; background: #000; color: #fff; 
             font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh;
             display: flex; align-items: center; justify-content: center;
+            user-select: none;
         }
 
-        /* TŁO Z KOLOROWYMI BĄBELKAMI */
+        /* TŁO Z KOLOROWYMI BĄBELKAMI (ANIMOWANE) */
         #bg-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            filter: blur(60px); opacity: 0.6;
+            filter: blur(60px); opacity: 0.7;
         }
 
         .setup-win {
-            background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(255,255,255,0.1);
-            width: 800px; padding: 50px; border-radius: 15px; backdrop-filter: blur(10px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center;
+            background: rgba(15, 15, 15, 0.85); border: 1px solid rgba(255,255,255,0.1);
+            width: 850px; min-height: 500px; padding: 50px; border-radius: 20px; 
+            backdrop-filter: blur(15px); box-shadow: 0 25px 60px rgba(0,0,0,0.8); 
+            text-align: center; position: relative;
         }
 
-        .step { display: none; animation: fadeIn 0.5s ease; }
+        .step { display: none; animation: fadeIn 0.6s ease; }
         .active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* WYBÓR KRAJU & WERSJI */
+        /* INPUTY I SELEKTY */
         select, input {
-            background: #222; border: 1px solid #444; color: #fff;
-            padding: 12px; width: 100%; margin: 10px 0; border-radius: 5px; font-size: 16px;
+            background: rgba(255,255,255,0.05); border: 1px solid #444; color: #fff;
+            padding: 15px; width: 100%; margin: 15px 0; border-radius: 8px; font-size: 16px;
+            outline: none;
         }
+        input:focus { border-color: var(--blue); }
 
-        .grid-ver { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        /* KAFELKI WERSJI */
+        .grid-ver { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
         .ver-card {
-            background: rgba(255,255,255,0.05); border: 1px solid #333;
-            padding: 20px; cursor: pointer; border-radius: 10px; transition: 0.2s; text-align: left;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            padding: 25px; cursor: pointer; border-radius: 12px; transition: 0.3s; text-align: left;
         }
-        .ver-card:hover { background: var(--blue); border-color: #fff; }
-        .ver-card b { display: block; font-size: 18px; margin-bottom: 5px; }
-        .ver-card span { font-size: 12px; opacity: 0.7; }
+        .ver-card:hover { 
+            background: rgba(0, 120, 215, 0.2); border-color: var(--blue); 
+            transform: scale(1.03); 
+        }
+        .ver-card b { display: block; font-size: 20px; margin-bottom: 8px; color: var(--blue); }
+        .ver-card span { font-size: 13px; opacity: 0.8; line-height: 1.4; display: block; }
 
-        /* PRZYCISKI */
         .btn-next {
-            background: var(--blue); color: #fff; border: none; padding: 12px 40px;
-            font-weight: bold; cursor: pointer; margin-top: 30px; border-radius: 5px;
+            background: var(--blue); color: #fff; border: none; padding: 15px 50px;
+            font-weight: bold; cursor: pointer; margin-top: 40px; border-radius: 30px;
+            font-size: 16px; transition: 0.3s;
         }
+        .btn-next:hover { background: #0086f0; box-shadow: 0 0 20px rgba(0, 120, 215, 0.5); }
 
-        /* EKRAN KOŃCOWY - BĄBELKI */
-        #final-text { font-size: 28px; font-weight: 300; }
+        /* PASEK INSTALACJI */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); margin: 40px 0; border-radius: 10px; overflow: hidden; }
+        #bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--blue), var(--purple)); transition: 0.1s; }
+
+        #final-msg { font-size: 32px; font-weight: 300; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -60,73 +72,72 @@
     <div class="setup-win">
         
         <div id="step1" class="step active">
-            <h1>Wybierz region</h1>
-            <p>Ustawimy język i formaty pod Twoją lokalizację.</p>
+            <h1 style="font-weight: 300;">Wybierz swój kraj lub region</h1>
+            <p style="opacity: 0.7;">To pozwoli nam dostosować klawiaturę i format daty.</p>
             <select id="country">
-                <option value="pl">Polska (Poland)</option>
+                <option value="pl">Polska</option>
             </select>
             <button class="btn-next" onclick="nextStep(2)">Dalej</button>
         </div>
 
         <div id="step2" class="step">
-            <h1>Wybierz wersję BootiX17</h1>
+            <h1 style="font-weight: 300;">Wybierz edycję BootiX17</h1>
             <div class="grid-ver">
-                <div class="ver-card" onclick="selectVer('Home')">
-                    <b>Home</b> <span>Dom, granie, multimedia. Spoko opcja.</span>
+                <div class="ver-card" onclick="selectVersion('Home')">
+                    <b>Home</b> <span>Idealny do domu i gier. Spoko opcja dla każdego.</span>
                 </div>
-                <div class="ver-card" onclick="selectVer('Pro')">
-                    <b>Pro</b> <span>Dla gamerów. Zawiera VM i zaawansowane opcje.</span>
+                <div class="ver-card" onclick="selectVersion('Pro')">
+                    <b>Pro</b> <span>Dla zaawansowanych. Obsługa VM i narzędzi deweloperskich.</span>
                 </div>
-                <div class="ver-card" onclick="selectVer('Lite')">
-                    <b>Lite</b> <span>Praca, internet, notatnik. Nie zacina się.</span>
+                <div class="ver-card" onclick="selectVersion('Lite')">
+                    <b>Lite</b> <span>Szybki jak błyskawica. Tylko praca i internet. Zero zacięć.</span>
                 </div>
-                <div class="ver-card" onclick="selectVer('ProAI')">
-                    <b>ProAI</b> <span>Beta testy, AI w grach, nowości od razu.</span>
+                <div class="ver-card" onclick="selectVersion('ProAI')">
+                    <b>ProAI</b> <span>Przyszłość. Beta testy, integracja AI i najnowsze funkcje.</span>
                 </div>
             </div>
         </div>
 
         <div id="step3" class="step">
-            <h1 id="key-title">Klucz produktu</h1>
-            <p>Wpisz klucz dla wersji: <b id="selected-ver-name"></b></p>
-            <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX-XXXXX">
-            <button class="btn-next" onclick="validateKey()">Aktywuj i instaluj</button>
+            <h1 id="key-title" style="font-weight: 300;">Aktywacja systemu</h1>
+            <p>Wprowadź klucz licencyjny dla wersji <b id="selected-ver-display" style="color: var(--blue);"></b></p>
+            <input type="text" id="license-key" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" maxlength="23">
+            <button class="btn-next" onclick="validateAndStart()">Aktywuj i instaluj</button>
         </div>
 
         <div id="step4" class="step">
-            <h1 id="install-status">Instalowanie systemu na dysk...</h1>
-            <p id="sub-status">Pobieranie nowych składników BlueOS</p>
-            <div style="width: 100%; height: 4px; background: #222; margin: 20px 0;">
-                <div id="bar" style="width: 0%; height: 100%; background: var(--blue); transition: 0.3s;"></div>
+            <h1 id="install-status" style="font-weight: 300;">Instalowanie systemu...</h1>
+            <p id="sub-status" style="opacity: 0.6;">Przygotowywanie partycji dysku</p>
+            <div class="progress-container">
+                <div id="bar"></div>
             </div>
         </div>
 
         <div id="step5" class="step">
-            <div id="final-text">Wszystko przygotujemy za ciebie.</div>
-            <p style="opacity: 0.6; margin-top: 20px;">Już tylko chwilka...</p>
+            <h1 id="final-msg">Wszystko przygotujemy za ciebie.</h1>
+            <p style="opacity: 0.5; margin-top: 20px; font-size: 18px;">Już tylko chwilka...</p>
         </div>
 
     </div>
 
     <script>
-        let currentVer = "";
+        let chosenOS = "";
 
         function nextStep(s) {
             document.querySelectorAll('.step').forEach(div => div.classList.remove('active'));
             document.getElementById('step' + s).classList.add('active');
         }
 
-        function selectVer(v) {
-            currentVer = v;
-            document.getElementById('selected-ver-name').innerText = v;
-            document.getElementById('key-title').innerText = "Klucz dla BootiX17 " + v;
+        function selectVersion(v) {
+            chosenOS = v;
+            document.getElementById('selected-ver-display').innerText = v;
             nextStep(3);
         }
 
-        function validateKey() {
+        function validateAndStart() {
             const key = document.getElementById('license-key').value;
             if(key.length < 5) {
-                alert("Wpisz poprawny klucz!");
+                alert("Klucz produktu jest nieprawidłowy!");
                 return;
             }
             startInstallation();
@@ -142,42 +153,52 @@
             const int = setInterval(() => {
                 p++;
                 bar.style.width = p + "%";
-                if(p == 30) { status.innerText = "Dopicowanie systemu..."; sub.innerText = "Konfigurowanie interfejsu BlueOS"; }
-                if(p == 70) { status.innerText = "Przygotowywanie składników..."; sub.innerText = "Optymalizacja jądra Qumix"; }
+
+                if(p == 20) { status.innerText = "Pobieranie plików..."; sub.innerText = "Pobieranie BootiX17 " + chosenOS + " Core Image"; }
+                if(p == 50) { status.innerText = "Dopicowanie systemu..."; sub.innerText = "Optymalizacja rejestru Qumix 2.0"; }
+                if(p == 80) { status.innerText = "Przygotowywanie składników..."; sub.innerText = "Konfigurowanie sterowników BlueOS"; }
                 
                 if(p >= 100) {
                     clearInterval(int);
-                    nextStep(5);
+                    
+                    // ZAPISUJEMY WERSJĘ DO PAMIĘCI
+                    localStorage.setItem('installedVersion', chosenOS);
+                    
+                    nextStep(5); // Ekran z napisem "Wszystko przygotujemy za ciebie"
+
                     setTimeout(() => {
-                        window.location.href = "pulpit_nowy.html";
-                    }, 5000);
+                        // DYNAMICZNE PRZEKIEROWANIE
+                        // Przerabia np. 'ProAI' na 'proaidesktop.html'
+                        let target = chosenOS.toLowerCase() + "desktop.html";
+                        window.location.href = target;
+                    }, 5500);
                 }
-            }, 100);
+            }, 80); // Prędkość instalacji
         }
 
-        // ANIMACJA BĄBELKÓW (CANVAS)
+        // --- ANIMACJA KOLOROWYCH BĄBELKÓW (CANVAS) ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         let particles = [];
-        const colors = ['#0078d7', '#ffffff', '#8e44ad'];
+        const colors = ['#0078d7', '#ffffff', '#8e44ad', '#004578'];
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 100 + 50;
+                this.size = Math.random() * 150 + 80;
                 this.color = colors[Math.floor(Math.random() * colors.length)];
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
+                this.speedX = Math.random() * 0.8 - 0.4;
+                this.speedY = Math.random() * 0.8 - 0.4;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                if (this.x > canvas.width + 100 || this.x < -100) this.speedX *= -1;
+                if (this.y > canvas.height + 100 || this.y < -100) this.speedY *= -1;
             }
             draw() {
                 ctx.fillStyle = this.color;
@@ -187,7 +208,7 @@
             }
         }
 
-        for (let i = 0; i < 15; i++) particles.push(new Particle());
+        for (let i = 0; i < 20; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -195,6 +216,11 @@
             requestAnimationFrame(animate);
         }
         animate();
+
+        window.onresize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
     </script>
 </body>
 </html>
