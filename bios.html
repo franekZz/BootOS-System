@@ -2,124 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BayOSPAL Setup Utility</title>
+    <title>BIOS Setup</title>
     <style>
         body {
-            background-color: #000;
-            color: #ccc;
+            background-color: #000; color: #ccc;
             font-family: 'Courier New', monospace;
-            margin: 0; padding: 0;
-            user-select: none;
-            overflow: hidden;
-            /* ŻÓŁTO-CZARNY KURSOR */
+            margin: 0; padding: 0; user-select: none; overflow: hidden;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M0,0 L0,22 L6,16 L11,26 L15,24 L10,14 L18,14 Z" fill="yellow" stroke="black" stroke-width="2"/></svg>'), auto;
         }
-
-        #header { background: #ccc; color: #000; padding: 2px 20px; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; }
+        #header { background: #ccc; color: #000; padding: 2px 20px; font-weight: bold; display: flex; justify-content: space-between; }
+        #nav { display: flex; background: #333; padding: 0 20px; }
+        .nav-tab { padding: 5px 20px; background: #ccc; color: #000; font-weight: bold; }
+        #main { display: flex; height: calc(100vh - 80px); border: 1px solid #444; margin: 10px; position: relative; }
+        #left { flex: 2; padding: 20px; border-right: 1px solid #444; }
+        #right { flex: 1; padding: 20px; color: #00aa00; font-size: 13px; }
         
-        /* TYLKO JEDNA ZAKŁADKA */
-        #nav { display: flex; background: #333; color: #000; padding: 0 20px; }
-        .nav-tab { padding: 5px 20px; font-size: 14px; background: #ccc; font-weight: bold; }
-
-        #main-container { display: flex; height: calc(100vh - 80px); border: 1px solid #444; margin: 10px; }
+        .opt { padding: 8px 10px; display: flex; justify-content: space-between; width: 90%; cursor: pointer; border: 1px solid transparent; }
+        .opt:hover { border: 1px solid #fff; background: #111; }
         
-        #options-panel { flex: 2; padding: 20px; border-right: 1px solid #444; }
-        .option { padding: 8px 10px; display: flex; justify-content: space-between; width: 95%; color: #aaa; }
-        .selected { background: #fff; color: #000 !important; }
+        /* Styl dla High Contrast */
+        .high-contrast { color: #fff !important; background: #000 !important; font-weight: bold; }
+        .high-contrast .opt { color: #0f0 !important; }
 
-        #info-panel { flex: 1; padding: 20px; font-size: 13px; color: #00aa00; }
-        .disk-stat { border: 1px solid #444; padding: 15px; margin-top: 10px; color: #ccc; }
-        .progress-bg { width: 100%; background: #222; border: 1px solid #555; height: 12px; margin-top: 10px; }
-        .progress-bar { width: 25%; background: #00aa00; height: 100%; }
+        .bar-bg { width: 100%; background: #222; border: 1px solid #444; height: 12px; margin-top: 10px; }
+        .bar-fill { width: 25%; background: #00aa00; height: 100%; }
 
-        #footer { position: absolute; bottom: 10px; width: 100%; padding: 0 25px; font-size: 12px; color: #777; }
+        /* Lupa (Magnifier) */
+        #magnifier-glass {
+            display: none; position: absolute;
+            width: 150px; height: 150px;
+            border: 4px solid yellow; border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%);
+            box-shadow: 0 0 50px rgba(255,255,0,0.3);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(2px) scale(1.5);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="header">
-        <span>BayOSPAL BIOS Setup Utility</span>
-        <span>Version 2.15.1248</span>
+        <span>BayOSPAL BIOS Utility</span>
+        <span>v2.15</span>
     </div>
 
-    <div id="nav">
-        <div class="nav-tab">Accessibility</div>
-    </div>
+    <div id="nav"><div class="nav-tab">Accessibility</div></div>
 
-    <div id="main-container">
-        <div id="options-panel">
-            <h4 style="color: #fff; margin-top: 0;">Accessibility Settings</h4>
-            <hr border="0" style="border-top: 1px solid #444;">
+    <div id="main">
+        <div id="magnifier-glass"></div>
+
+        <div id="left">
+            <h4 style="color:#fff">Settings</h4>
+            <hr border="0" style="border-top:1px solid #444">
             <br>
             
-            <div class="option selected" id="opt-0">
-                <span>Skip Instalacion</span>
-                <span>[LEFT CLICK / ENTER]</span>
+            <div class="opt" onclick="window.location.href='bluescreenpoaktulizacjibiosprzywracaniesystemu.html'">
+                <span>Skip Instalacion</span><span>[RUN]</span>
             </div>
 
-            <div class="option" id="opt-1">
-                <span>High Contrast Mode</span>
-                <span>[Disabled]</span>
+            <div class="opt" onclick="toggleContrast()">
+                <span>High Contrast</span><span id="st-contrast">[DISABLED]</span>
             </div>
 
-            <div class="option" id="opt-2">
-                <span>Magnifier Tool</span>
-                <span>[Disabled]</span>
+            <div class="opt" onclick="toggleMagnifier()">
+                <span>Magnifier Tool</span><span id="st-lupa">[DISABLED]</span>
             </div>
         </div>
 
-        <div id="info-panel">
-            <h4 style="color: #fff; margin-top: 0;">Drive Information</h4>
-            <hr border="0" style="border-top: 1px solid #444;">
-            <div class="disk-stat">
-                <p><b>Device:</b> NVMe SSD 4TB</p>
-                <p><b>Capacity:</b> 4.0 TB</p>
-                <p><b>Used:</b> 1.0 TB</p>
-                <p><b>Free:</b> 3.0 TB</p>
-                <div class="progress-bg"><div class="progress-bar"></div></div>
-                <p style="font-size: 10px; text-align: right; margin-top: 5px;">25% Space Occupied</p>
-            </div>
-            <br>
-            <p style="color: #777;">
-                Use <b>Left Mouse Button</b> to select.<br>
-                Use <b>Right Mouse Button</b> to go back.
-            </p>
+        <div id="right">
+            <h4 style="color:#fff">Disk Info</h4>
+            <hr border="0" style="border-top:1px solid #444">
+            <p>NVMe SSD: 4.0 TB</p>
+            <p>Used: 1.0 TB</p>
+            <div class="bar-bg"><div class="bar-fill"></div></div>
         </div>
-    </div>
-
-    <div id="footer">
-        [L-CLICK] Enter Selection | [R-CLICK] Back to Boot | [&uarr;&darr;] Move Selection
     </div>
 
     <script>
-        let currentIndex = 0;
-        const totalOptions = 3;
-
-        // STEROWANIE MYSZKĄ
+        // Prawy przycisk - wstecz
         window.addEventListener('mousedown', (e) => {
-            if (e.button === 0) { // LEWY = WEJDŹ (ENTER)
-                if (currentIndex === 0) {
-                    window.location.href = "bluescreenpoaktulizacjibiosprzywracaniesystemu.html";
-                }
-            } 
-            else if (e.button === 2) { // PRAWY = WSTECZ (INDEX)
-                window.location.href = "index.html";
+            if (e.button === 2) window.location.href = "index.html";
+        });
+
+        // Obsługa Lupy
+        let lupaActive = false;
+        const glass = document.getElementById('magnifier-glass');
+
+        function toggleMagnifier() {
+            lupaActive = !lupaActive;
+            glass.style.display = lupaActive ? 'block' : 'none';
+            document.getElementById('st-lupa').innerText = lupaActive ? '[ENABLED]' : '[DISABLED]';
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if(lupaActive) {
+                glass.style.left = e.clientX + 'px';
+                glass.style.top = e.clientY + 'px';
             }
         });
 
-        // STEROWANIE KLAWIATURĄ
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowUp" && currentIndex > 0) updateSelection(currentIndex - 1);
-            if (e.key === "ArrowDown" && currentIndex < totalOptions - 1) updateSelection(currentIndex + 1);
-            if (e.key === "Enter" && currentIndex === 0) {
-                window.location.href = "bluescreenpoaktulizacjibiosprzywracaniesystemu.html";
-            }
-        });
-
-        function updateSelection(newIndex) {
-            document.getElementById(`opt-${currentIndex}`).classList.remove('selected');
-            currentIndex = newIndex;
-            document.getElementById(`opt-${currentIndex}`).classList.add('selected');
+        // Obsługa Kontrastu
+        function toggleContrast() {
+            document.body.classList.toggle('high-contrast');
+            const isActive = document.body.classList.contains('high-contrast');
+            document.getElementById('st-contrast').innerText = isActive ? '[ENABLED]' : '[DISABLED]';
         }
     </script>
 </body>
