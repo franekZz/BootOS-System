@@ -2,137 +2,78 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Pulpit</title>
+    <title>BootOS Desktop</title>
     <style>
-        /* --- STYL PULPITU I TAPETY --- */
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; font-family: 'Segoe UI', sans-serif;
-            /* TAPETA CZARNO-NIEBIESKA */
-            background: radial-gradient(circle at center, #001a4d 0%, #000000 100%);
-            color: white;
+        body {
+            margin: 0; padding: 0;
+            background: #004578; /* Klasyczny nudny niebieski */
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            background-image: radial-gradient(circle, #005a9e 0%, #004578 100%);
         }
 
-        /* NAPIS BOOTOS NA ŚRODKU TAPETY */
-        #wallpaper-logo {
-            position: absolute; top: 45%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: clamp(50px, 10vw, 120px);
-            font-weight: bold; letter-spacing: 15px;
-            opacity: 0.1; user-select: none; pointer-events: none;
+        /* IKONY NA PULPICIE */
+        .icon-container {
+            display: flex; flex-direction: column; gap: 20px; padding: 20px;
         }
 
-        /* --- PASEK ZADAŃ --- */
+        .icon {
+            width: 80px; text-align: center; cursor: pointer; color: white;
+            transition: transform 0.1s;
+        }
+        .icon:hover { transform: scale(1.1); }
+        .icon img { width: 50px; height: 50px; display: block; margin: 0 auto 5px; }
+        .icon span { font-size: 12px; text-shadow: 1px 1px 2px #000; }
+
+        /* PASEK ZADAŃ */
         #taskbar {
-            position: absolute; bottom: 0; width: 100%; height: 45px;
-            background: rgba(0, 0, 0, 0.9);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; align-items: center; padding: 0 15px;
-            box-sizing: border-box; z-index: 1000;
+            position: fixed; bottom: 0; width: 100%; height: 40px;
+            background: rgba(0,0,0,0.8); display: flex; align-items: center; padding: 0 10px;
+        }
+        .start-btn {
+            background: #0078d7; color: white; padding: 5px 15px;
+            font-weight: bold; cursor: pointer; margin-right: 15px; border: none;
         }
 
-        #start-btn { font-weight: bold; margin-right: 20px; cursor: pointer; color: #55ff55; }
-
-        /* IKONA CMD NA PASKU */
-        .taskbar-icon {
-            width: 32px; height: 32px; background: #111;
-            border: 1px solid #444; border-radius: 4px;
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; transition: 0.2s; color: #55ff55; font-family: monospace;
+        /* POWIADOMIENIE O BRAKU WSPARCIA */
+        #support-warning {
+            position: fixed; top: 20px; right: 20px; width: 300px;
+            background: #fff; color: #000; padding: 15px;
+            border-left: 5px solid #ffcc00; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 13px; animation: slideIn 0.5s ease-out;
         }
-        .taskbar-icon:hover { background: #222; transform: translateY(-2px); }
-
-        #clock { margin-left: auto; font-family: monospace; font-size: 16px; }
-
-        /* --- OKNO SYSTEMOWE (Dla cmd.html) --- */
-        #window-container {
-            display: none; position: absolute;
-            top: 10%; left: 10%; width: 700px; height: 450px;
-            background: #000; border: 1px solid #555;
-            border-radius: 6px; box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-            flex-direction: column; z-index: 500;
-        }
-
-        #window-header {
-            height: 32px; background: #222; display: flex;
-            align-items: center; padding: 0 10px; cursor: move;
-            user-select: none; font-size: 13px; color: #ccc;
-        }
-
-        #close-btn { margin-left: auto; cursor: pointer; color: #ff5555; font-weight: bold; padding: 0 5px; }
-
-        /* RAMKA WCZYTUJĄCA PLIK CMD.HTML */
-        #cmd-frame {
-            width: 100%; height: 100%; border: none; background: black;
-        }
-
-        /* POWITANIE NA ŚRODKU */
-        #welcome-text {
-            position: absolute; top: 20%; width: 100%;
-            text-align: center; font-size: 32px; font-weight: 300;
-            text-shadow: 0 0 15px rgba(0,100,255,0.5);
-        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <div id="wallpaper-logo">BootOS</div>
-    <div id="welcome-text">Witaj, <span id="user-name">Użytkownik</span></div>
+    <div id="support-warning">
+        <b>Uwaga od BlueOS:</b><br>
+        Wsparcie dla systemu BootOS wygasło. Twój komputer może być zagrożony. 
+        <a href="settings.html" style="color: #0078d7;">Sprawdź aktualizacje.</a>
+    </div>
 
-    <div id="window-container">
-        <div id="window-header" id="drag-handle">
-            <span>C:\Windows\System32\cmd.exe</span>
-            <div id="close-btn" onclick="toggleCMD()">X</div>
+    <div class="icon-container">
+        <div class="icon" onclick="window.location.href='settings.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Settings">
+            <span>Ustawienia</span>
         </div>
-        <iframe src="cmd.html" id="cmd-frame"></iframe>
+
+        <div class="icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2815/2815428.png" alt="Files">
+            <span>Moje Pliki</span>
+        </div>
+
+        <div class="icon">
+            <img src="https://cdn-icons-png.flaticon.com/512/2891/2891491.png" alt="Trash">
+            <span>Kosz</span>
+        </div>
     </div>
 
     <div id="taskbar">
-        <div id="start-btn">START</div>
-        <div class="taskbar-icon" onclick="toggleCMD()" title="Wiersz Polecenia">>_</div>
-        <div id="clock">00:00:00</div>
+        <button class="start-btn">START</button>
+        <span style="color: #666; font-size: 12px; margin-left: auto;">BootOS 1.0 (Build 42)</span>
     </div>
 
-    <script>
-        // 1. DANE I ZEGAR
-        window.onload = function() {
-            const nick = localStorage.getItem('bootos_user') || "Użytkownik";
-            document.getElementById('user-name').innerText = nick;
-
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.toLocaleTimeString();
-            }, 1000);
-        };
-
-        // 2. OTWIERANIE / ZAMYKANIE CMD
-        function toggleCMD() {
-            const win = document.getElementById('window-container');
-            if(win.style.display === "flex") {
-                win.style.display = "none";
-            } else {
-                win.style.display = "flex";
-            }
-        }
-
-        // 3. PRZESUWANIE OKNA (DRAG & DROP)
-        const win = document.getElementById('window-container');
-        const header = document.getElementById('window-header');
-        let isDragging = false, offset = [0,0];
-
-        header.onmousedown = function(e) {
-            isDragging = true;
-            offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
-        };
-
-        document.onmouseup = function() { isDragging = false; };
-
-        document.onmousemove = function(e) {
-            if (isDragging) {
-                win.style.left = (e.clientX + offset[0]) + 'px';
-                win.style.top = (e.clientY + offset[1]) + 'px';
-            }
-        };
-    </script>
 </body>
 </html>
