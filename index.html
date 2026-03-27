@@ -2,82 +2,55 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootOS - Startup</title>
+    <title>BootiX17 - BIOS Loader</title>
     <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: black; color: white;
-            font-family: 'Courier New', monospace; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+        body {
+            background: #000; color: #fff; font-family: 'Consolas', monospace;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; margin: 0; overflow: hidden;
         }
-
-        /* CZARNY EKRAN STARTOWY */
-        #post-screen {
-            display: block; width: 85%; font-size: 20px; line-height: 1.5;
-        }
-
-        /* NIEBIESKI EKRAN LOGO (UKRYTY NA START) */
-        #boot-layer {
-            display: none; flex-direction: column; align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-        }
+        .logo { font-size: 60px; font-weight: 900; color: #0078d7; text-shadow: 0 0 20px #0078d7; margin-bottom: 10px; }
+        .version { font-size: 14px; opacity: 0.5; margin-bottom: 50px; }
         
-        #boot-text { font-size: 100px; font-weight: bold; margin-bottom: 40px; }
-
-        .circle-btn {
-            width: 100px; height: 100px; background-color: white;
-            border-radius: 50%; display: flex; justify-content: center;
-            align-items: center; cursor: pointer;
+        .menu { display: flex; flex-direction: column; gap: 15px; }
+        .btn {
+            width: 280px; padding: 15px; border: 1px solid #333; background: transparent;
+            color: #ccc; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+            transition: 0.3s; position: relative;
         }
-        .arrow-icon { color: #0000CD; font-size: 50px; }
+        .btn:hover { border-color: #0078d7; color: #fff; background: rgba(0, 120, 215, 0.1); box-shadow: 0 0 20px rgba(0, 120, 215, 0.2); }
+        
+        /* Specjalny styl dla Kontynuuj */
+        .btn-continue { border-color: #00ff88; color: #00ff88; }
+        .btn-continue:hover { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
 
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .scanline {
+            width: 100%; height: 2px; background: rgba(0, 120, 215, 0.1);
+            position: absolute; top: 0; animation: scan 4s linear infinite;
+        }
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
     </style>
 </head>
 <body>
+    <div class="scanline"></div>
+    <div class="logo">BootiX17</div>
+    <div class="version">Build 2026.03.27 - MicraBlue Systems</div>
 
-    <div id="post-screen">
-        <p>BayOSPAL BIOS v1.0.42</p>
-        <p>Copyright (C) 2026, BayOSPAL Corp.</p>
-        <br>
-        <p>Main Processor : Intel(R) Core(TM) i7-13700K</p>
-        <p>Memory Test : 16384MB OK</p>
-        <br>
-        <p>Detecting Storage Devices...</p>
-        <p>SATA Port 0 : SSD 512GB (BootOS Drive)</p>
-        <br><br>
-        <p class="blink">Press <span style="background:white; color:black; padding:0 5px;">DEL</span> or <span style="background:white; color:black; padding:0 5px;">F1</span> to enter Setup</p>
-    </div>
-
-    <div id="boot-layer">
-        <div id="boot-text">BootOS</div>
-        <div class="circle-btn" onclick="window.location.href='config_theme.html'">
-            <span class="arrow-icon">➔</span>
-        </div>
+    <div class="menu">
+        <button class="btn btn-continue" onclick="window.location.href='login.html'">> Kontynuuj sesję</button>
+        
+        <button class="btn" onclick="confirmReset()">> Nowa Instalacja</button>
+        
+        <button class="btn" onclick="window.location.href='bios.html'">> BIOS Setup (DEL)</button>
     </div>
 
     <script>
-        // FUNKCJA WEJŚCIA DO BIOSU
-        function enterBios() {
-            window.location.href = "bios.html";
-        }
-
-        // NASŁUCHIWANIE KLAWISZY (DEL i F1)
-        window.addEventListener('keydown', function(e) {
-            // Delete = 'Delete', F1 = 'F1'
-            if (e.key === 'Delete' || e.key === 'F1') {
-                enterBios();
+        function confirmReset() {
+            if(confirm("Czy na pewno chcesz usunąć obecny system i zainstalować go od nowa?")) {
+                localStorage.clear();
+                window.location.href = 'bootix17_install.html';
             }
-        });
-
-        // JEŚLI UŻYTKOWNIK NIC NIE KLIKNIE PRZEZ 4 SEKUNDY:
-        setTimeout(() => {
-            // Przejdź do normalnego ładowania systemu
-            document.getElementById('post-screen').style.display = 'none';
-            document.body.style.backgroundColor = "#0000CD";
-            document.getElementById('boot-layer').style.display = 'flex';
-        }, 4000);
+        }
     </script>
 </body>
 </html>
