@@ -2,53 +2,125 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BootiX17 - BIOS Loader</title>
+    <title>BootOS Startup</title>
     <style>
-        body {
-            background: #000; color: #fff; font-family: 'Consolas', monospace;
+        body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
+        
+        /* 1. EKRAN ŁADOWANIA (6 sekund) */
+        #boot-loader {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; margin: 0; overflow: hidden;
+            height: 100vh; transition: opacity 1s;
         }
-        .logo { font-size: 60px; font-weight: 900; color: #0078d7; text-shadow: 0 0 20px #0078d7; margin-bottom: 10px; }
-        .version { font-size: 14px; opacity: 0.5; margin-bottom: 50px; }
-        
-        .menu { display: flex; flex-direction: column; gap: 15px; }
-        .btn {
-            width: 280px; padding: 15px; border: 1px solid #333; background: transparent;
-            color: #ccc; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
-            transition: 0.3s; position: relative;
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #0078d7; border-radius: 50%; animation: spin 1s linear infinite;
         }
-        .btn:hover { border-color: #0078d7; color: #fff; background: rgba(0, 120, 215, 0.1); box-shadow: 0 0 20px rgba(0, 120, 215, 0.2); }
-        
-        /* Specjalny styl dla Kontynuuj */
-        .btn-continue { border-color: #00ff88; color: #00ff88; }
-        .btn-continue:hover { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .scanline {
-            width: 100%; height: 2px; background: rgba(0, 120, 215, 0.1);
-            position: absolute; top: 0; animation: scan 4s linear infinite;
+        /* 2. ANIMACJA NAPISU BootOS (Z czarnego na niebieski) */
+        #logo-screen {
+            display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center;
+            background: #000; animation: bgToBlue 2s forwards 0.5s;
         }
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
+        @keyframes bgToBlue { from { background: #000; } to { background: #001a33; } }
+
+        #logo-text {
+            font-size: 80px; font-weight: 900; color: #000;
+            animation: textToBlue 2s forwards 0.5s; letter-spacing: 5px;
+        }
+        @keyframes textToBlue { from { color: #000; text-shadow: none; } to { color: #0078d7; text-shadow: 0 0 30px #0078d7; } }
+
+        /* 3. MENU WYBORU */
+        .menu-btns { margin-top: 40px; display: flex; gap: 20px; opacity: 0; animation: fadeIn 1s forwards 2.5s; }
+        .btn {
+            padding: 15px 40px; background: transparent; border: 2px solid #0078d7;
+            color: #fff; cursor: pointer; font-size: 18px; border-radius: 5px; transition: 0.3s;
+        }
+        .btn:hover { background: #0078d7; box-shadow: 0 0 20px #0078d7; }
+
+        /* 4. FORMULARZ LOGOWANIA / WYBORU WERSJI */
+        #selection-box {
+            display: none; flex-direction: column; align-items: center; gap: 15px;
+            opacity: 0; animation: fadeIn 0.5s forwards;
+        }
+        input, select {
+            padding: 12px; width: 250px; background: rgba(255,255,255,0.05);
+            border: 1px solid #0078d7; color: #fff; border-radius: 5px; outline: none;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="scanline"></div>
-    <div class="logo">BootiX17</div>
-    <div class="version">Build 2026.03.27 - MicraBlue Systems</div>
 
-    <div class="menu">
-        <button class="btn btn-continue" onclick="window.location.href='login.html'">> Kontynuuj sesję</button>
+    <div id="boot-loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-family: monospace; opacity: 0.5;">BlueBoard Neural Link...</p>
+    </div>
+
+    <div id="logo-screen">
+        <div id="logo-text">BootOS</div>
         
-        <button class="btn" onclick="confirmReset()">> Nowa Instalacja</button>
-        
-        <button class="btn" onclick="window.location.href='bios.html'">> BIOS Setup (DEL)</button>
+        <div class="menu-btns" id="main-menu">
+            <button class="btn" onclick="startSelection('format')">DALEJ</button>
+            <button class="btn" onclick="startSelection('login')">ZALOGUJ</button>
+        </div>
+
+        <div id="selection-box">
+            <h3 id="form-title">Wybierz System</h3>
+            <select id="os-version">
+                <option value="bootos">BootOS (Legacy)</option>
+                <option value="bootix">BootiX17 (NewUI)</option>
+            </select>
+            <input type="text" id="username" placeholder="Twoja nazwa">
+            <button class="btn" style="width: 100%" onclick="finalAction()">URUCHOM</button>
+        </div>
     </div>
 
     <script>
-        function confirmReset() {
-            if(confirm("Czy na pewno chcesz usunąć obecny system i zainstalować go od nowa?")) {
-                localStorage.clear();
+        let currentMode = '';
+
+        // 1. Czekaj 6 sekund na ładowanie
+        setTimeout(() => {
+            document.getElementById('boot-loader').style.display = 'none';
+            document.getElementById('logo-screen').style.display = 'flex';
+        }, 6000);
+
+        // 2. Obsługa BIOSu (DEL/F2) w trakcie ładowania
+        window.addEventListener('keydown', (e) => {
+            if (e.key === "Delete" || e.key === "F2") {
+                window.location.href = 'bios.html';
+            }
+        });
+
+        // 3. Rozpoczęcie wyboru
+        function startSelection(mode) {
+            currentMode = mode;
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('selection-box').style.display = 'flex';
+            
+            if(mode === 'format') {
+                document.getElementById('form-title').innerText = "Formatuj i instaluj:";
+            } else {
+                document.getElementById('form-title').innerText = "Logowanie do systemu:";
+            }
+        }
+
+        // 4. Finalna akcja
+        function finalAction() {
+            const os = document.getElementById('os-version').value;
+            const name = document.getElementById('username').value || "Użytkownik";
+            
+            localStorage.setItem('userName', name);
+            
+            if(currentMode === 'format') {
                 window.location.href = 'bootix17_install.html';
+            } else {
+                // Jeśli logowanie, sprawdza czy BootiX czy BootOS
+                if(os === 'bootix') {
+                    window.location.href = 'homedesktop.html';
+                } else {
+                    alert("System BootOS jest obecnie niedostępny (Wymaga aktualizacji BlueBoard)");
+                }
             }
         }
     </script>
