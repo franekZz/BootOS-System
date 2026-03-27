@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>BootOS Settings - Update</title>
+    <style>
+        body { background: #1a1a1a; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
+        #sidebar { width: 200px; background: #222; height: 100vh; padding: 20px; border-right: 1px solid #333; }
+        #content { flex: 1; padding: 40px; }
+        
+        .nav-item { padding: 10px; cursor: pointer; color: #aaa; margin-bottom: 5px; }
+        .nav-item:hover { background: #333; color: #fff; }
+        .active { background: #0078d7; color: #fff; }
+
+        .update-box { background: #252525; border: 1px solid #444; padding: 30px; border-radius: 4px; }
+        .status-icon { font-size: 40px; margin-bottom: 10px; color: #ffcc00; }
+        .btn-update { background: #0078d7; color: #fff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        .btn-update:hover { background: #0086f0; }
+        
+        /* Modal Błędu */
+        #error-modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); align-items: center; justify-content: center; 
+        }
+        .error-dialog { background: #fff; color: #000; width: 400px; padding: 25px; border-radius: 2px; box-shadow: 0 20px 50px #000; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="nav-item">System</div>
+        <div class="nav-item">Ekran</div>
+        <div class="nav-item active">Aktualizacje</div>
+        <div class="nav-item">Personalizacja</div>
+    </div>
+
+    <div id="content">
+        <h1>BlueOS Update Center</h1>
+        <div class="update-box">
+            <div class="status-icon">⚠</div>
+            <h2>Dostępna krytyczna aktualizacja</h2>
+            <p style="color: #bbb;">Twój obecny system <b>BootOS</b> nie jest już wspierany przez markę <b>BlueOS</b>.</p>
+            <p>Zalecana przesiadka na: <b style="color: #0078d7;">BootiX17 (v1.0.1)</b></p>
+            
+            <button class="btn-update" onclick="checkQumix()">Pobierz i zainstaluj teraz</button>
+        </div>
+    </div>
+
+    <div id="error-modal">
+        <div class="error-dialog">
+            <h3 style="margin-top:0; color: #d00;">Błąd krytyczny BlueOS</h3>
+            <p>Instalacja <b>BootiX17</b> nie może zostać rozpoczęta.</p>
+            <p><b>Powód:</b> Brak sprzętowego modułu Qumix 2.0 (TPM-Equivalent). BlueOS wymaga bezpiecznego rozruchu dla nowej architektury.</p>
+            <hr>
+            <button style="float:right; padding: 8px 20px;" onclick="document.getElementById('error-modal').style.display='none'">Zamknij</button>
+        </div>
+    </div>
+
+    <script>
+        function checkQumix() {
+            // Sprawdzamy czy update BIOSu został zrobiony w update.html
+            const hasQumix = localStorage.getItem('biosUpdated') === 'true';
+
+            if (!hasQumix) {
+                // JEŚLI NIE MA QUMIXA -> POKAŻ BŁĄD
+                document.getElementById('error-modal').style.display = 'flex';
+            } else {
+                // JEŚLI JEST QUMIX -> LECIMY DO INSTALACJI
+                window.location.href = "bootix17_install.html";
+            }
+        }
+    </script>
+</body>
+</html>
