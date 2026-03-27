@@ -1,160 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>BIOS Flash Utility - Qumix 2.0</title>
+    <title>BlueBoard Update Utility</title>
     <style>
-        body {
-            background-color: #000; color: #ccc; font-family: 'Courier New', monospace;
-            margin: 0; padding: 0; user-select: none; overflow: hidden;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M0,0 L0,22 L6,16 L11,26 L15,24 L10,14 L18,14 Z" fill="yellow" stroke="black" stroke-width="2"/></svg>'), auto;
+        /* WYMUSZENIE ŻÓŁTEGO KURSORA - KLASYCZNA STRZAŁKA W KOLORZE ŻÓŁTYM */
+        * { 
+            cursor: url('https://cur.cursors-4u.net/others/oth-9/oth814.cur'), default !important; 
         }
-        #header { background: #ccc; color: #000; padding: 2px 20px; font-weight: bold; display: flex; justify-content: space-between; }
-        #main { height: calc(100vh - 40px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        .btn { background: #999; color: #000; padding: 15px 30px; border: 2px solid #555; cursor: pointer; font-weight: bold; font-family: 'Courier New'; margin: 10px; }
-        .btn:hover { background: #fff; border-color: #fff; }
-        .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        #qumix-modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #111; border: 3px solid #ccc; padding: 30px; width: 500px; z-index: 100; box-shadow: 0 0 100px #000;
+        body { 
+            background: #000; color: #fff; font-family: 'Consolas', monospace; 
+            padding: 30px; margin: 0; overflow: hidden; height: 100vh;
         }
-        
-        .warning-red { color: #ff0000; font-weight: bold; margin: 20px 0; border: 2px solid red; padding: 15px; background: rgba(255,0,0,0.1); animation: blink 0.8s infinite; }
-        @keyframes blink { 50% { border-color: transparent; } }
-        
-        #progress-area { display: none; width: 80%; margin-top: 20px; }
-        .bar-bg { width: 100%; background: #222; border: 1px solid #555; height: 35px; }
-        .bar-fill { width: 0%; background: #00aa00; height: 100%; }
 
-        /* RED SCREEN OF DEATH (EASTER EGG) */
-        #rsod {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #aa0000; color: white; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999; padding: 50px;
-            font-family: sans-serif; text-align: left;
+        .container { max-width: 600px; margin: 0 auto; }
+        h2 { color: #ffeb3b; border-bottom: 2px solid #ffeb3b; padding-bottom: 10px; font-size: 24px; }
+        
+        #usb-waiter { text-align: center; padding: 50px; border: 2px dashed #444; margin-top: 20px; }
+        .usb-btn { 
+            background: #111; border: 1px solid #ffeb3b; color: #ffeb3b; 
+            padding: 10px 20px; font-weight: bold; text-transform: uppercase;
         }
-        #rsod h1 { font-size: 150px; margin: 0; }
+        .usb-btn:hover { background: #ffeb3b; color: #000; }
+
+        #update-form { display: none; margin-top: 20px; }
+        .terms-box { 
+            background: #0a0a0a; border: 1px solid #333; padding: 15px; 
+            height: 140px; overflow-y: auto; font-size: 13px; color: #ccc; margin-bottom: 20px;
+        }
+        .gold-info { color: #d4af37; font-weight: bold; }
+        
+        .install-btn { 
+            width: 100%; padding: 15px; background: #222; color: #666; 
+            border: 1px solid #333; font-weight: bold; font-size: 16px;
+        }
+        .install-btn.ready { background: #ffeb3b; color: #000; border-color: #fff; }
+
+        #progress-area { display: none; margin-top: 30px; }
+        .bar-bg { width: 100%; height: 12px; background: #111; border: 1px solid #333; position: relative; }
+        #bar-fill { width: 0%; height: 100%; background: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; transition: 0.1s; }
+
+        /* BLUE SCREEN (BSOD) */
+        #bsod {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0000aa; color: #fff; padding: 60px; box-sizing: border-box; z-index: 9999;
+            font-family: 'Segoe UI', sans-serif;
+        }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div id="header">
-        <span>BayOSPAL BIOS Flash Utility v1.4</span>
-        <span>Status: <span id="usb-status" style="color:red">NO USB DRIVE</span></span>
+<div id="bsod">
+    <div style="font-size: 100px;">:(</div>
+    <div style="font-size: 24px; margin: 20px 0;">Napotkano problem i nastąpiło przerwanie aktualizacji BlueBoard.</div>
+    <p>BŁĄD KRYTYCZNY: Użyto klawisza ESC podczas flashowania kości BIOS.</p>
+    <p>Kod błędu: 0x17_FATAL_UPDATE_CANCELLED</p>
+    <p>Status: 17% kompletne. Restartowanie systemu...</p>
+</div>
+
+<div class="container" id="main-content">
+    <h2 id="title">BLUEBOARD UPDATE UTILITY</h2>
+
+    <div id="usb-waiter">
+        <p>System BlueBoard oczekuje na FlashUSB...</p>
+        <button class="usb-btn" onclick="detectUSB()">PODŁĄCZ USB</button>
     </div>
 
-    <div id="main">
-        <div id="step1">
-            <h1 style="color: #fff;">WŁÓŻ FLASH USB</h1>
-            <p>Wymagany obraz BIOS v3.0 z modułem Qumix (TPM 2.0).</p>
-            <br>
-            <button class="btn" onclick="plugUsb()">Włącz UsbPC Flash</button>
+    <div id="update-form">
+        <p>Wykryto: <span style="color:#ffeb3b">BB_UPDATE_2026_FINAL</span></p>
+        <div class="terms-box">
+            <strong>REGULAMIN I PUNKTY AKTUALIZACJI:</strong><br><br>
+            - Aktulizacja biosu: Nowy złoto czarne tło.<br>
+            - Dostęp do Qumix tylko do płyt BlueBOARD.<br>
+            - <span style="color: #ffeb3b;">Ostrzeżenie:</span> ESC przerywa zapis.
         </div>
-
-        <div id="step2" style="display:none">
-            <div class="warning-red">OSTRZEŻENIE: NIE ODŁĄCZAJ SWEGO PC OD PRĄDU!</div>
-            <p>Rozpoczęcie pełnej aktualizacji układu SPI Flash.</p>
-            <button class="btn" style="background: #aa0000; color: #fff;" onclick="finalFlash()">Flashuj Bios-Aktualizuj</button>
-        </div>
-
-        <div id="progress-area">
-            <h2 id="status-msg" style="color:#0f0">PRZYGOTOWANIE DO ZAPISU...</h2>
-            <div class="bar-bg"><div class="bar-fill" id="fill"></div></div>
-            <p style="color: #444; margin-top: 15px;">NIE WYCHODŹ (ESC ABY PRZERWAĆ)</p>
-        </div>
+        
+        <label style="display: block; margin-bottom: 20px; font-weight: bold;">
+            <input type="checkbox" id="agree" onchange="check()"> Akceptuję punkty aktualizacji
+        </label>
+        
+        <button id="btn-start" class="install-btn" onclick="runUpdate()" disabled>ROZPOCZNIJ AKTUALIZACJĘ</button>
     </div>
 
-    <div id="qumix-modal">
-        <h2 style="color:#fff">INFORMACJA</h2>
-        <p>Aktualizacja BIOS włączy technologię <b style="color:yellow">Qumix</b> (odpowiednik TPM 2.0).</p>
-        <p style="font-size: 13px; color: #888;">Marka BlueOS wymaga tego modułu do instalacji systemu BootiX17.</p>
-        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-        <div style="text-align: left;">
-            <input type="checkbox" id="accept-check" onclick="toggleAccept()"> 
-            <label for="accept-check" style="cursor:pointer">Zaakceptuj warunki i integrację Qumix</label>
-        </div>
-        <br>
-        <button class="btn" id="modal-btn" disabled onclick="closeModal()">Kontynuuj</button>
+    <div id="progress-area">
+        <p id="status">Zapisywanie firmware...</p>
+        <div class="bar-bg"><div id="bar-fill"></div></div>
     </div>
+</div>
 
-    <div id="rsod">
-        <h1>:(</h1>
-        <h2>Zepsuto System BootOS</h2>
-        <p>Twoje dane zostały zniszczone. Przerwanie flashowania BIOS uszkodziło sumy kontrolne modułu Qumix.</p>
-        <br>
-        <button class="btn" style="background: white; color: #aa0000; border: none;" onclick="window.location.href='index.html'">Zainstaluj BootOS</button>
-        <p style="margin-top: 40px; font-family: monospace; opacity: 0.6;">Error: EASTER_EGG_BIOS_CORRUPT_QUMIX_FAIL</p>
-    </div>
+<script>
+    let isUpdating = false;
 
-    <script>
-        let isFlashing = false;
+    function detectUSB() {
+        document.getElementById('usb-waiter').style.display = 'none';
+        document.getElementById('update-form').style.display = 'block';
+    }
 
-        // Prawy klik - powrót do zakładki BIOS (tylko jeśli nie flashujemy)
-        window.addEventListener('mousedown', (e) => {
-            if (e.button === 2 && !isFlashing) window.location.href = "bios.html";
-        });
+    function check() {
+        const b = document.getElementById('btn-start');
+        const c = document.getElementById('agree');
+        b.classList.toggle('ready', c.checked);
+        b.disabled = !c.checked;
+    }
 
-        // ESCAPE - Easter Egg
-        window.addEventListener('keydown', (e) => {
-            if (e.key === "Escape" && isFlashing) {
-                isFlashing = false;
-                document.getElementById('rsod').style.display = 'flex';
+    function runUpdate() {
+        document.getElementById('update-form').style.display = 'none';
+        document.getElementById('progress-area').style.display = 'block';
+        isUpdating = true;
+        let p = 0;
+        const fill = document.getElementById('bar-fill');
+
+        const iv = setInterval(() => {
+            if(!isUpdating) { clearInterval(iv); return; }
+            p += 0.5;
+            fill.style.width = p + "%";
+            
+            if(p >= 100) {
+                clearInterval(iv);
+                localStorage.setItem('isUpdated', 'true');
+                localStorage.removeItem('updateFailed');
+                alert("AKTUALIZACJA BIOSU ZAKOŃCZONA.");
+                window.location.href = 'personalizacjabios.html';
             }
-        });
+        }, 60);
+    }
 
-        function plugUsb() {
-            document.getElementById('usb-status').innerText = "USB CONNECTED";
-            document.getElementById('usb-status').style.color = "#0f0";
-            document.getElementById('qumix-modal').style.display = 'block';
+    // EASTER EGG: ESC -> BLUE SCREEN
+    window.addEventListener('keydown', (e) => {
+        if (e.key === "Escape" && isUpdating) {
+            isUpdating = false;
+            localStorage.setItem('updateFailed', 'true');
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('bsod').style.display = 'block';
+            setTimeout(() => { window.location.href = 'bios.html'; }, 5000);
         }
+    });
+</script>
 
-        function toggleAccept() {
-            document.getElementById('modal-btn').disabled = !document.getElementById('accept-check').checked;
-        }
-
-        function closeModal() {
-            document.getElementById('qumix-modal').style.display = 'none';
-            document.getElementById('step1').style.display = 'none';
-            document.getElementById('step2').style.display = 'block';
-        }
-
-        function finalFlash() {
-            isFlashing = true;
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('progress-area').style.display = 'block';
-            
-            let p = 0;
-            const fill = document.getElementById('fill');
-            const statusLabel = document.getElementById('status-msg');
-            
-            const logs = [
-                "Kasowanie bloków pamięci...",
-                "Wgrywanie mikrokodu Qumix...",
-                "Weryfikacja podpisów BlueOS...",
-                "Aktualizacja tabel ACPI...",
-                "Finalizowanie zmian..."
-            ];
-
-            const timer = setInterval(() => {
-                if(!isFlashing) { clearInterval(timer); return; }
-                p += 1;
-                fill.style.width = p + "%";
-                
-                if (p % 20 === 0 && p < 100) {
-                    statusLabel.innerText = logs[Math.floor(p/20)];
-                }
-
-                if (p >= 100) {
-                    clearInterval(timer);
-                    statusLabel.innerText = "AKTUALIZACJA ZAKOŃCZONA!";
-                    // TO JEST KLUCZOWE: Odblokowujemy Qumix w systemie
-                    localStorage.setItem('biosUpdated', 'true'); 
-                    setTimeout(() => { window.location.href = "index.html"; }, 2000);
-                }
-            }, 80);
-        }
-    </script>
 </body>
 </html>
