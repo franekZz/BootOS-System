@@ -1,0 +1,29 @@
+<div id="lax-format-screen" style="background: #770000; color: #fff; font-family: 'Courier New'; padding: 100px; height: 100vh; text-align: center; border: 20px solid #ff0000;">
+    <h1 style="font-size: 50px;">BŁĄD KRYTYCZNY LaxOS</h1>
+    <p style="font-size: 20px; background: #000; padding: 10px;">XiaxAI v0.1: "Nie wiem co się stało, więc formatuję C:\"</p>
+    
+    <div style="margin: 50px auto; width: 80%; background: #333; border: 2px solid #fff;">
+        <div id="format-progress" style="width: 0%; height: 30px; background: #ff0000; transition: 1s;"></div>
+    </div>
+    
+    <p id="lax-status">PRZYGOTOWANIE DO USUNIĘCIA TWOICH ZDJĘĆ I GIER...</p>
+    
+    <div style="margin-top: 50px; opacity: 0.5; font-style: italic;">
+        "LaxOS - Bo naprawianie jest trudne, a usuwanie łatwe."
+    </div>
+</div>
+
+<script>
+    let p = 0;
+    const interval = setInterval(() => {
+        p += 5;
+        document.getElementById('format-progress').style.width = p + "%";
+        if(p === 40) document.getElementById('lax-status').innerText = "KASOWANIE ZAPISÓW Z GIER... OK";
+        if(p === 70) document.getElementById('lax-status').innerText = "USUWANIE PROJEKTÓW Z XimiGallery... OK";
+        if(p >= 100) {
+            clearInterval(interval);
+            alert("LaxOS: Naprawiono! Masz teraz pusty komputer. Idź do Biedry.");
+            location.reload();
+        }
+    }, 1500);
+</script>
